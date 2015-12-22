@@ -66,7 +66,7 @@ implements Listener
 					for (int i = 0; i < words.length; i++) {
 						bl.append(words[i] + " ");
 						if (bl.length() >= 50) {
-							p.sendMessage(bl.toString());
+							p.sendMessage(ChatColor.stripColor(bl.toString()));
 							bl = new StringBuilder(64);
 						}
 					}
