@@ -1,7 +1,7 @@
 name: BetterBooks
 main: io.github.archemedes.betterbooks.BetterBooks
 version: 1.35
-depend: [ArcheCore, Customizer]
+depend: [ArcheCore, CustomItem]
 softdepend: [Multiworld, Multiverse-Core]
 
 commands:
