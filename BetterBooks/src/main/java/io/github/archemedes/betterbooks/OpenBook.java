@@ -1,58 +1,57 @@
 package io.github.archemedes.betterbooks;
 
-import java.util.List;
 import org.bukkit.Location;
 
-class OpenBook
-{
-  private int pageMarker = -1;
-  private final String title;
-  private final String author;
-  private final List<String> pages;
-  private final Location location;
-  private int task = 0;
+import java.util.List;
 
-  OpenBook(String title, String author, List<String> pages, Location location) {
-    this.title = title;
-    this.author = author;
-    this.pages = pages;
-    this.location = location;
-  }
+class OpenBook {
+    private final String title;
+    private final String author;
+    private final List<String> pages;
+    private final Location location;
+    private int pageMarker = -1;
+    private int task = 0;
 
-  String getTitle() {
-    return this.title;
-  }
+    OpenBook(String title, String author, List<String> pages, Location location) {
+        this.title = title;
+        this.author = author;
+        this.pages = pages;
+        this.location = location;
+    }
 
-  String getAuthor() {
-    return this.author;
-  }
+    String getTitle() {
+        return this.title;
+    }
 
-  String readNext(boolean back) {
-    this.pageMarker += (back ? -1 : 1);
-    if (this.pageMarker < 0) this.pageMarker = (this.pages.size() - 1);
-    if (this.pageMarker >= this.pages.size()) this.pageMarker = 0;
+    String getAuthor() {
+        return this.author;
+    }
 
-    return this.pages.get(this.pageMarker);
-  }
+    String readNext(boolean back) {
+        this.pageMarker += (back ? -1 : 1);
+        if (this.pageMarker < 0) this.pageMarker = (this.pages.size() - 1);
+        if (this.pageMarker >= this.pages.size()) this.pageMarker = 0;
 
-  int getPage() {
-    return this.pageMarker;
-  }
+        return this.pages.get(this.pageMarker);
+    }
 
-  int getPages() {
-    return this.pages.size();
-  }
+    int getPage() {
+        return this.pageMarker;
+    }
 
-  int getTask() {
-    return this.task;
-  }
+    int getPages() {
+        return this.pages.size();
+    }
 
-  void setTask(int task) {
-    if (task > 0) this.task = task; 
-  }
+    int getTask() {
+        return this.task;
+    }
 
-  Location getLocation()
-  {
-    return this.location.clone();
-  }
+    void setTask(int task) {
+        if (task > 0) this.task = task;
+    }
+
+    Location getLocation() {
+        return this.location.clone();
+    }
 }

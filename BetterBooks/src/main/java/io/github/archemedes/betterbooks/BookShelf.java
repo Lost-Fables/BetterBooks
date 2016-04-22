@@ -2,12 +2,6 @@ package io.github.archemedes.betterbooks;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import net.lordofthecraft.arche.ArcheCore;
 import net.lordofthecraft.arche.SQL.SQLHandler;
 import net.lordofthecraft.arche.interfaces.IArcheCore;
@@ -23,167 +17,168 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 public class BookShelf
-implements InventoryHolder
-{
-	public static final String BOOKSHELF_NAME = "Bookshelf";
-	private static final Map<Location, BookShelf> shelves = Maps.newHashMap();
-	private static SaveHandler buffer;
-	private final List<String> viewers = Lists.newArrayList();
-	private final Inventory inv;
-	private final Location key;
-	private boolean changed = false;
+        implements InventoryHolder {
+    public static final String BOOKSHELF_NAME = "Bookshelf";
+    private static final Map<Location, BookShelf> shelves = Maps.newHashMap();
+    private static SaveHandler buffer;
+    private final List<String> viewers = Lists.newArrayList();
+    private final Inventory inv;
+    private final Location key;
+    private boolean changed = false;
 
-	public static BookShelf getBookshelf(Block b)
-	{
-		Location l = b.getLocation();
+    private BookShelf(Location where) {
+        this.key = where;
+        this.inv = Bukkit.createInventory(this, 9, "Bookshelf");
+    }
 
-		if (b.getType() != Material.BOOKSHELF) {
-			return null;
-		}
-		if (shelves.containsKey(l)) {
-			return shelves.get(l);
-		}
-		BookShelf res = new BookShelf(l);
-		shelves.put(l, res);
-		return res;
-	}
+    public static BookShelf getBookshelf(Block b) {
+        Location l = b.getLocation();
 
-	public static boolean hasBookShelf(Block b)
-	{
-		return shelves.containsKey(b.getLocation());
-	}
+        if (b.getType() != Material.BOOKSHELF) {
+            return null;
+        }
+        if (shelves.containsKey(l)) {
+            return shelves.get(l);
+        }
+        BookShelf res = new BookShelf(l);
+        shelves.put(l, res);
+        return res;
+    }
 
-	public static Map<Location, BookShelf> getAllShelves() {
-		return Collections.unmodifiableMap(shelves);
-	}
+    public static boolean hasBookShelf(Block b) {
+        return shelves.containsKey(b.getLocation());
+    }
 
-	private BookShelf(Location where) {
-		this.key = where;
-		this.inv = Bukkit.createInventory(this, 9, "Bookshelf");
-	}
+    public static Map<Location, BookShelf> getAllShelves() {
+        return Collections.unmodifiableMap(shelves);
+    }
 
-	public void addViewer(Player p) {
-		this.viewers.add(p.getName());
-	}
+    static void init(BetterBooks plugin) {
+        buffer = SaveHandler.getInstance();
+        IArcheCore control = ArcheCore.getControls();
+        SQLHandler handler = control.getSQLHandler();
 
-	public void removeViewer(Player p) {
-		this.viewers.remove(p.getName());
-	}
+        handler.execute("CREATE TABLE IF NOT EXISTS books (world TEXT, x INT, y INT, z INT, slot INT, mat TEXT, count INT, damage INT, title TEXT, author TEXT, lore TEXT, pages TEXT);");
+        ResultSet res = null;
+        try {
+            res = handler.query("SELECT * FROM books;");
+            populateBookshelves(res);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(res);
+        }
+    }
 
-	public boolean isViewer(Player p) {
-		return this.viewers.contains(p.getName());
-	}
+    static void populateBookshelves(ResultSet res) throws SQLException {
+        while (res.next()) {
+            String world = res.getString(1);
+            World w = Bukkit.getWorld(world);
+            if (w != null) {
+                int x = res.getInt(2);
+                int y = res.getInt(3);
+                int z = res.getInt(4);
 
-	@Override
-	public Inventory getInventory()
-	{
-		return this.inv;
-	}
+                Block b = w.getBlockAt(x, y, z);
+                BookShelf s = getBookshelf(b);
+                if (s != null) {
+                    int slot = res.getInt(5);
+                    ItemStack book = SQLSerializer.deserialize(res);
 
-	public Location getLocation() {
-		return this.key.clone();
-	}
+                    s.getInventory().setItem(slot, book);
+                }
+            }
+        }
+    }
 
-	public void setChanged() {
-		this.changed = true;
-	}
+    private static void close(ResultSet res) {
+        if (res != null) try {
+            res.close();
+            res.getStatement().close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public void close()
-	{
-		boolean empty = isInventoryEmpty(this.inv);
+    public void addViewer(Player p) {
+        this.viewers.add(p.getName());
+    }
 
-		if (this.changed) {
-			this.changed = false;
+    public void removeViewer(Player p) {
+        this.viewers.remove(p.getName());
+    }
 
-			ItemStack[] contents = empty ? null : this.inv.getContents();
-			ClearShelfTask task = new ClearShelfTask(contents, getLocation());
-			buffer.put(task);
-		} else if (getLocation().getBlock().getType() != Material.BOOKSHELF) {
-			ClearShelfTask task = new ClearShelfTask(null, getLocation());
-			buffer.put(task);
-		}
+    public boolean isViewer(Player p) {
+        return this.viewers.contains(p.getName());
+    }
 
-		if (empty) shelves.remove(this.key); 
-	}
+    @Override
+    public Inventory getInventory() {
+        return this.inv;
+    }
 
-	public void remove(boolean drops)
-	{
-		boolean empty = true;
+    public Location getLocation() {
+        return this.key.clone();
+    }
 
-		shelves.remove(this.key);
+    public void setChanged() {
+        this.changed = true;
+    }
 
-		List<HumanEntity> list = new ArrayList<HumanEntity>(this.inv.getViewers());
-		for (HumanEntity x : list) {
-			x.closeInventory();
-		}
+    public void close() {
+        boolean empty = isInventoryEmpty(this.inv);
 
-		for (ItemStack is : this.inv) {
-			if (is != null) {
-				empty = false;
-				if (!drops) break; this.key.getWorld().dropItemNaturally(this.key, is);
-			}
+        if (this.changed) {
+            this.changed = false;
 
-		}
+            ItemStack[] contents = empty ? null : this.inv.getContents();
+            ClearShelfTask task = new ClearShelfTask(contents, getLocation());
+            buffer.put(task);
+        } else if (getLocation().getBlock().getType() != Material.BOOKSHELF) {
+            ClearShelfTask task = new ClearShelfTask(null, getLocation());
+            buffer.put(task);
+        }
 
-		if (!empty) {
-			ClearShelfTask task = new ClearShelfTask(null, getLocation());
-			buffer.put(task);
-		}
-	}
+        if (empty) shelves.remove(this.key);
+    }
 
-	static void init(BetterBooks plugin) {
-		buffer = SaveHandler.getInstance();
-		IArcheCore control = ArcheCore.getControls();
-		SQLHandler handler = control.getSQLHandler();
+    public void remove(boolean drops) {
+        boolean empty = true;
 
-		handler.execute("CREATE TABLE IF NOT EXISTS books (world TEXT, x INT, y INT, z INT, slot INT, mat TEXT, count INT, damage INT, title TEXT, author TEXT, lore TEXT, pages TEXT);");
-		ResultSet res = null;
-		try
-		{
-			res = handler.query("SELECT * FROM books;");
-			populateBookshelves(res);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			close(res);
-		}
-	}
+        shelves.remove(this.key);
 
-	static void populateBookshelves(ResultSet res) throws SQLException
-	{
-		while (res.next()) {
-			String world = res.getString(1);
-			World w = Bukkit.getWorld(world);
-			if (w != null)
-			{
-				int x = res.getInt(2);
-				int y = res.getInt(3);
-				int z = res.getInt(4);
+        List<HumanEntity> list = new ArrayList<HumanEntity>(this.inv.getViewers());
+        list.forEach(HumanEntity::closeInventory);
 
-				Block b = w.getBlockAt(x, y, z);
-				BookShelf s = getBookshelf(b);
-				if (s != null)
-				{
-					int slot = res.getInt(5);
-					ItemStack book = SQLSerializer.deserialize(res);
+        for (ItemStack is : this.inv) {
+            if (is != null) {
+                empty = false;
+                if (!drops) break;
+                this.key.getWorld().dropItemNaturally(this.key, is);
+            }
 
-					s.getInventory().setItem(slot, book); } 
-			}
-		}
-	}
+        }
 
-	private static void close(ResultSet res) { if (res != null) try {
-		res.close(); res.getStatement().close(); } catch (SQLException e) { e.printStackTrace(); }  
-	}
+        if (!empty) {
+            ClearShelfTask task = new ClearShelfTask(null, getLocation());
+            buffer.put(task);
+        }
+    }
 
-	private boolean isInventoryEmpty(Inventory inv)
-	{
-		for (ItemStack item : inv.getContents()) {
-			if (item != null) {
-				return false;
-			}
-		}
-		return true;
-	}
+    private boolean isInventoryEmpty(Inventory inv) {
+        for (ItemStack item : inv.getContents()) {
+            if (item != null) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
