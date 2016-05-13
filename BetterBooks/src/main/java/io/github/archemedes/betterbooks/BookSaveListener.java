@@ -27,7 +27,7 @@ import java.util.List;
 public class BookSaveListener
         implements Listener {
     private final BetterBooks plugin;
-    HashMap<String, OpenBook> readers = new HashMap<String, OpenBook>();
+    HashMap<String, OpenBook> readers = new HashMap<>();
 
     public BookSaveListener(BetterBooks plugin) {
         this.plugin = plugin;

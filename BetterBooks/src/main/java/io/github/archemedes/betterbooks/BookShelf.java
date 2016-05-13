@@ -155,7 +155,7 @@ public class BookShelf
 
         shelves.remove(this.key);
 
-        List<HumanEntity> list = new ArrayList<HumanEntity>(this.inv.getViewers());
+        List<HumanEntity> list = new ArrayList<>(this.inv.getViewers());
         list.forEach(HumanEntity::closeInventory);
 
         for (ItemStack is : this.inv) {

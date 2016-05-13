@@ -62,7 +62,7 @@ public class SQLSerializer {
     public static ItemStack deserialize(ResultSet res)
             throws SQLException {
         String mStr = res.getString(6);
-        Material m = null;
+        Material m;
         try {
             m = Material.matchMaterial(mStr);
         } catch (IllegalArgumentException e) {

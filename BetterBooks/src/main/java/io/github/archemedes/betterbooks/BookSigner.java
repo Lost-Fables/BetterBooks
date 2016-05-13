@@ -33,7 +33,7 @@ public class BookSigner
             return false;
         }
         for (String arg : argv)
-            authorName.append(" " + arg);
+            authorName.append(" ").append(arg);
         authorName.delete(0, 1);
         if (authorName.length() > 32) {
             player.sendMessage(ChatColor.RED + "Get over yourself! You do not need such a hellishly long name!");
