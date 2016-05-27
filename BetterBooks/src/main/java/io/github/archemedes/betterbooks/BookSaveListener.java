@@ -38,7 +38,8 @@ public class BookSaveListener
         Block b = event.getClickedBlock();
         Player p = event.getPlayer();
 
-        if (p.getEquipment().getItemInMainHand().getType() == Material.BOOKSHELF || p.isSneaking()) return;
+        if (p.getEquipment().getItemInMainHand().getType() == Material.BOOKSHELF || (p.isSneaking() && event.hasBlock()))
+            return;
 
         Action a = event.getAction();
         if (((a == Action.RIGHT_CLICK_BLOCK) || (a == Action.LEFT_CLICK_BLOCK)) &&
