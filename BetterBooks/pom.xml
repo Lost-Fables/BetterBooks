@@ -1,9 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.archemedes</groupId>
 	<artifactId>BetterBooks</artifactId>
-	<version>1.88</version>
+	<version>1.94</version>
 	<name>BetterBooks</name>
 	<description>They're just better.</description>
 	<properties>
@@ -13,13 +13,13 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot</artifactId>
-			<version>1.8.8-R0.1-SNAPSHOT</version>
+			<version>1.9.4-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>1.8.8-R0.1-SNAPSHOT</version>
+			<version>1.9.4-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -31,17 +31,18 @@
 		<dependency>
 			<groupId>net.lordofthecraft.arche</groupId>
 			<artifactId>ArcheCore</artifactId>
-			<version>1.88</version>
+			<version>1.94</version>
 		</dependency>
 		<dependency>
 			<groupId>io.github.archemedes</groupId>
 			<artifactId>customitem</artifactId>
-			<version>1.88</version>
+			<version>1.94</version>
 		</dependency>
 	</dependencies>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
-		<testSourceDirectory>src/test</testSourceDirectory>
+		<defaultGoal>clean package install</defaultGoal>
+		<finalName>${project.name}</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
