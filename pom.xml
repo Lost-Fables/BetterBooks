@@ -3,48 +3,51 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.archemedes</groupId>
 	<artifactId>BetterBooks</artifactId>
-	<version>1.102.0</version>
+	<version>1.110.0</version>
 	<name>BetterBooks</name>
 	<description>They're just better.</description>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<distributionManagement>
+
 		<repository>
 			<id>lotc-release</id>
 			<url>https://repo.lordofthecraft.net/repository/lotc-releases/</url>
 		</repository>
 	</distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <id>lotc-release</id>
+            <url>https://repo.lordofthecraft.net/repository/lotc-releases/</url>
+        </repository>
+    </repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
-			<version>1.10.2-R0.1-SNAPSHOT</version>
+			<version>1.11-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.bukkit</groupId>
-			<artifactId>bukkit</artifactId>
-			<version>1.10.2-R0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.lordofthecraft.arche</groupId>
 			<artifactId>ArcheCore</artifactId>
-			<version>1.102.0</version>
+			<version>1.110.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.github.archemedes</groupId>
 			<artifactId>customitem</artifactId>
-			<version>1.102.0</version>
+			<version>1.110.0</version>
 		</dependency>
 	</dependencies>
+
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<defaultGoal>clean package install</defaultGoal>
@@ -62,7 +65,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5</version>
+				<version>3.6.0</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -70,17 +73,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<repositories>
-		<repository>
-			<id>spigot-repo</id>
-			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-		</repository>
-		<repository>
-			<id>lotc-release</id>
-			<url>https://repo.lordofthecraft.net/repository/lotc-releases/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
 </project>

@@ -90,26 +90,26 @@ public class BookSaveListener
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    public void onDrag(InventoryDragEvent u) {
-        Inventory inv = u.getInventory();
+    public void onDrag(InventoryDragEvent event) {
+        Inventory inv = event.getInventory();
         if ((inv.getHolder() instanceof BookShelf))
-            u.setCancelled(true);
+            event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onInteract(InventoryClickEvent u) {
-        Inventory inv = u.getInventory();
+    public void onInteract(InventoryClickEvent event) {
+        Inventory inv = event.getInventory();
         if (!(inv.getHolder() instanceof BookShelf)) {
             return;
         }
         BookShelf shelf = (BookShelf) inv.getHolder();
-        final Player p = (Player) u.getWhoClicked();
-        InventoryAction a = u.getAction();
+        final Player p = (Player) event.getWhoClicked();
+        InventoryAction a = event.getAction();
 
         Material type = null;
 
         if (shelf.isViewer(p)) {
-            u.setCancelled(true);
+            event.setCancelled(true);
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
                 @Override
@@ -119,8 +119,8 @@ public class BookSaveListener
 
             });
             if ((a.toString().contains("PICKUP")) && (
-                    (u.getCurrentItem().getType() == Material.WRITTEN_BOOK) || (u.getCurrentItem().getType() == Material.BOOK_AND_QUILL))) {
-                BookMeta meta = (BookMeta) u.getCurrentItem().getItemMeta();
+                    (event.getCurrentItem().getType() == Material.WRITTEN_BOOK) || (event.getCurrentItem().getType() == Material.BOOK_AND_QUILL))) {
+                BookMeta meta = (BookMeta) event.getCurrentItem().getItemMeta();
                 String title = meta.getTitle() == null ? "Unknown" : ChatColor.stripColor(meta.getTitle());
                 String auth = meta.getAuthor() == null ? "Unknown" : ChatColor.stripColor(meta.getAuthor());
                 List<String> pages = meta.getPages();
@@ -156,12 +156,12 @@ public class BookSaveListener
         } else {
             if (a == InventoryAction.NOTHING) return;
             if (a == InventoryAction.COLLECT_TO_CURSOR) {
-                u.setCancelled(true);
+                event.setCancelled(true);
                 return;
             }
             int slot;
-            if (u.getRawSlot() <= 8) {
-                slot = u.getRawSlot();
+            if (event.getRawSlot() <= 8) {
+                slot = event.getRawSlot();
             } else {
                 if (a == InventoryAction.MOVE_TO_OTHER_INVENTORY)
                     slot = inv.firstEmpty();
@@ -169,19 +169,19 @@ public class BookSaveListener
                     return;
             }
             if ((a == InventoryAction.MOVE_TO_OTHER_INVENTORY) && (inv.getItem(slot) == null)) {
-                type = u.getCurrentItem().getType();
+                type = event.getCurrentItem().getType();
             } else if (a == InventoryAction.HOTBAR_SWAP) {
-                ItemStack hotbar = p.getInventory().getItem(u.getHotbarButton());
+                ItemStack hotbar = p.getInventory().getItem(event.getHotbarButton());
                 type = hotbar == null ?
-                        u.getCurrentItem().getType() :
-                        p.getInventory().getItem(u.getHotbarButton()).getType();
-            } else if (u.getCursor().getType() != Material.AIR) {
-                type = u.getCursor().getType();
+                        event.getCurrentItem().getType() :
+                        p.getInventory().getItem(event.getHotbarButton()).getType();
+            } else if (event.getCursor().getType() != Material.AIR) {
+                type = event.getCursor().getType();
             }
             if ((type != null) &&
                     (type != Material.BOOK) && (type != Material.PAPER) && (type != Material.WRITTEN_BOOK) &&
                     (type != Material.BOOK_AND_QUILL) && (type != Material.EMPTY_MAP)) {
-                u.setCancelled(true);
+                event.setCancelled(true);
                 return;
             }
 
@@ -190,12 +190,12 @@ public class BookSaveListener
     }
 
     @EventHandler
-    public void onClose(InventoryCloseEvent u) {
-        Inventory inv = u.getInventory();
+    public void onClose(InventoryCloseEvent event) {
+        Inventory inv = event.getInventory();
 
         if ((inv.getHolder() instanceof BookShelf)) {
             BookShelf shelf = (BookShelf) inv.getHolder();
-            Player p = (Player) u.getPlayer();
+            Player p = (Player) event.getPlayer();
             shelf.removeViewer(p);
 
             if (inv.getViewers().size() <= 1)
@@ -204,8 +204,8 @@ public class BookSaveListener
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBurn(BlockBurnEvent u) {
-        Block b = u.getBlock();
+    public void onBurn(BlockBurnEvent event) {
+        Block b = event.getBlock();
 
         if (b.getType() != Material.BOOKSHELF) return;
         if (BookShelf.hasBookShelf(b)) {
@@ -215,8 +215,8 @@ public class BookSaveListener
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBreak(BlockBreakEvent u) {
-        Block b = u.getBlock();
+    public void onBreak(BlockBreakEvent event) {
+        Block b = event.getBlock();
 
         if (b.getType() != Material.BOOKSHELF) return;
         if (BookShelf.hasBookShelf(b)) {
@@ -226,8 +226,8 @@ public class BookSaveListener
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onExplode(EntityExplodeEvent u) {
-        u.blockList().stream().filter(b -> (b.getType() == Material.BOOKSHELF) &&
+    public void onExplode(EntityExplodeEvent event) {
+        event.blockList().stream().filter(b -> (b.getType() == Material.BOOKSHELF) &&
                 (BookShelf.hasBookShelf(b))).forEach(b -> {
             BookShelf shelf = BookShelf.getBookshelf(b);
             shelf.remove(true);
