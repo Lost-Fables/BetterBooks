@@ -4,6 +4,7 @@ import io.github.archemedes.customitem.Customizer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.BookMeta.Generation;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.sql.PreparedStatement;
@@ -22,6 +23,7 @@ public class SQLSerializer {
         String lore = null;
         String auth = null;
         String page = null;
+        String gen = null;
 
         List<String> lores = item.getItemMeta().getLore();
         if (lores != null) {
@@ -37,6 +39,7 @@ public class SQLSerializer {
             BookMeta meta = (BookMeta) item.getItemMeta();
             tit = meta.getTitle();
             auth = meta.getAuthor();
+            gen = meta.getGeneration().toString();
             List<String> pages = meta.getPages();
             StringBuilder buffer = new StringBuilder();
             for (String s : pages) {
@@ -56,6 +59,7 @@ public class SQLSerializer {
         into.setString(10, lore);
         into.setString(11, auth);
         into.setString(12, page);
+        into.setString(13, gen);
         return into;
     }
 
@@ -82,6 +86,7 @@ public class SQLSerializer {
         String lore = res.getString(10);
         String author = res.getString(11);
         String page = res.getString(12);
+        String gen = (res.getString(13) != null) ? res.getString(13) : "ORIGINAL";
 
         if ((m == Material.WRITTEN_BOOK) || (m == Material.BOOK_AND_QUILL)) {
             BookMeta meta = (BookMeta) book.getItemMeta();
@@ -95,6 +100,8 @@ public class SQLSerializer {
                 List<String> lorelist = Arrays.asList(lore.split("\\$"));
                 meta.setLore(lorelist);
             }
+            
+            meta.setGeneration(Generation.valueOf(gen));
 
             book.setItemMeta(meta);
         } else {

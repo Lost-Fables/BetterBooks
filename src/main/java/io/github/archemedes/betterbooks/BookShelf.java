@@ -66,7 +66,7 @@ public class BookShelf
         IArcheCore control = ArcheCore.getControls();
         SQLHandler handler = control.getSQLHandler();
 
-        handler.execute("CREATE TABLE IF NOT EXISTS books (world TEXT, x INT, y INT, z INT, slot INT, mat TEXT, count INT, damage INT, title TEXT, author TEXT, lore TEXT, pages TEXT);");
+        handler.execute("CREATE TABLE IF NOT EXISTS books (world TEXT, x INT, y INT, z INT, slot INT, mat TEXT, count INT, damage INT, title TEXT, author TEXT, lore TEXT, pages TEXT, gen TEXT);");
         ResultSet res = null;
         try {
             res = handler.query("SELECT * FROM books;");
