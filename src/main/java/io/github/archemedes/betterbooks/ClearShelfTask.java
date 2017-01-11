@@ -35,7 +35,7 @@ public class ClearShelfTask extends ArcheTask {
         try {
             synchronized (handle) {
                 ST_DEL = connection.prepareStatement("DELETE FROM books WHERE WORLD = ? AND x = ? AND y = ? AND z = ?");
-                ST_INS = connection.prepareStatement("INSERT INTO books VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+                ST_INS = connection.prepareStatement("INSERT INTO books VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
             }
         } catch (SQLException e) {
             e.printStackTrace();
