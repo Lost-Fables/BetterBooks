@@ -14,7 +14,7 @@
 
 		<repository>
 			<id>lotc-release</id>
-			<url>https://repo.lordofthecraft.net/repository/lotc-releases/</url>
+			<url>https://repo.lordofthecraft.net/artifactory/lotc-releases/</url>
 		</repository>
 	</distributionManagement>
 
@@ -24,9 +24,9 @@
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
         <repository>
-            <id>lotc-release</id>
-            <url>https://repo.lordofthecraft.net/repository/lotc-releases/</url>
-        </repository>
+			<id>lotc-release</id>
+			<url>https://repo.lordofthecraft.net/artifactory/lotc-releases/</url>
+		</repository>
     </repositories>
 
 	<dependencies>
