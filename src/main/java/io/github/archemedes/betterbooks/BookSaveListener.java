@@ -25,6 +25,7 @@ import org.bukkit.inventory.meta.BookMeta;
 
 import com.google.common.collect.Maps;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -123,13 +124,7 @@ implements Listener {
 		if (shelf.isViewer(p)) {
 			event.setCancelled(true);
 
-			Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
-				@Override
-				public void run() {
-					p.closeInventory();
-				}
-
-			});
+			Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, p::closeInventory);
 			if ((a.toString().contains("PICKUP")) && (
 					(event.getCurrentItem().getType() == Material.WRITTEN_BOOK) || (event.getCurrentItem().getType() == Material.BOOK_AND_QUILL))) {
 				BookMeta meta = (BookMeta) event.getCurrentItem().getItemMeta();
@@ -211,7 +206,7 @@ implements Listener {
 			shelf.removeViewer(p);
 
 			if (inv.getViewers().size() <= 1) {
-				if (!changetracker.get(shelf.getLocation()).equals(shelf.getInventory().getContents()))
+				if (!Arrays.equals(changetracker.get(shelf.getLocation()), shelf.getInventory().getContents()))
 					shelf.setChanged();
 				changetracker.remove(shelf.getLocation());
 				shelf.close();
@@ -243,8 +238,7 @@ implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onExplode(EntityExplodeEvent event) {
-		event.blockList().stream().filter(b -> (b.getType() == Material.BOOKSHELF) &&
-				(BookShelf.hasBookShelf(b))).forEach(b -> {
+		event.blockList().stream().filter(b -> (BookShelf.hasBookShelf(b))).forEach(b -> {
 					BookShelf shelf = BookShelf.getBookshelf(b);
 					shelf.remove(true);
 				});

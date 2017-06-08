@@ -39,7 +39,7 @@ public class BookSigner
             player.sendMessage(ChatColor.RED + "Get over yourself! You do not need such a hellishly long name!");
             return false;
         }
-        if (authorName.equals("null")) {
+        if (authorName.toString().equals("null")) {
             player.sendMessage(ChatColor.RED + "Oh you think you're soooo smart huh?");
             return false;
         }

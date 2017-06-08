@@ -54,7 +54,7 @@ public class BookShelf
     }
 
     public static boolean hasBookShelf(Block b) {
-        return shelves.containsKey(b.getLocation());
+        return shelves.containsKey(b.getLocation()) && b.getType() == Material.BOOKSHELF;
     }
 
     public static Map<Location, BookShelf> getAllShelves() {
