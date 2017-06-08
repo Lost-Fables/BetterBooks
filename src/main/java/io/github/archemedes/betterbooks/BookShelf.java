@@ -24,8 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class BookShelf
-        implements InventoryHolder {
+public class BookShelf implements InventoryHolder {
     public static final String BOOKSHELF_NAME = "Bookshelf";
     private static final Map<Location, BookShelf> shelves = Maps.newHashMap();
     private static SaveHandler buffer;

@@ -3,7 +3,7 @@ main: io.github.archemedes.betterbooks.BetterBooks
 version: ${project.version}
 description: ${project.description}
 depend: [ArcheCore, CustomItem]
-softdepend: [Multiworld, Multiverse-Core]
+softdepend: [Multiverse-Core, HawkEye]
 
 commands:
   signbook:
