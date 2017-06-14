@@ -27,6 +27,11 @@
 			<id>lotc-release</id>
 			<url>https://repo.lordofthecraft.net/artifactory/lotc-releases/</url>
 		</repository>
+		<!-- HawkEye -->
+		<repository>
+			<id>minebuilders-repo</id>
+			<url>http://minebuilders.me:8080/plugin/repository/everything/</url>
+		</repository>
     </repositories>
 
 	<dependencies>
@@ -45,6 +50,11 @@
 			<groupId>io.github.archemedes</groupId>
 			<artifactId>customitem</artifactId>
 			<version>1.112.0</version>
+		</dependency>
+		<dependency>
+			<groupId>uk.co.oliwali</groupId>
+			<artifactId>HawkEye</artifactId>
+			<version>1.7.2</version>
 		</dependency>
 	</dependencies>
 

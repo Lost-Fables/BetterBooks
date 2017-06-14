@@ -4,10 +4,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import uk.co.oliwali.HawkEye.util.HawkEyeAPI;
 
 public final class BetterBooks extends JavaPlugin {
     boolean shelvesBurnClean;
     boolean signOnCompletion;
+
+    private boolean hawkeyeEnabled = false;
 
     @Override
     public void onEnable() {
@@ -23,6 +26,11 @@ public final class BetterBooks extends JavaPlugin {
 
         this.shelvesBurnClean = config.getBoolean("shelves.burn.clean");
         this.signOnCompletion = config.getBoolean("sign.on.completion");
+
+        if (getServer().getPluginManager().getPlugin("HawkEye") != null) {
+            hawkeyeEnabled = true;
+        }
+
     }
 
     @Override
@@ -32,5 +40,9 @@ public final class BetterBooks extends JavaPlugin {
         }
 
         ClearShelfTask.close();
+    }
+
+    public boolean isHawkeyeEnabled() {
+        return hawkeyeEnabled;
     }
 }
