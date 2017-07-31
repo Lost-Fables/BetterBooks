@@ -1,40 +1,44 @@
 package io.github.archemedes.betterbooks;
 
-import com.google.common.collect.Maps;
-import org.bukkit.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.*;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.inventory.*;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-import uk.co.oliwali.HawkEye.DataType;
-import uk.co.oliwali.HawkEye.HawkEye;
-import uk.co.oliwali.HawkEye.entry.DataEntry;
-import uk.co.oliwali.HawkEye.entry.containerentries.ContainerEntry;
-import uk.co.oliwali.HawkEye.entry.containerentries.ContainerExtract;
-import uk.co.oliwali.HawkEye.entry.containerentries.ContainerInsert;
-import uk.co.oliwali.HawkEye.util.HawkEyeAPI;
-import uk.co.oliwali.HawkEye.util.InventoryUtil;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import com.google.common.collect.Maps;
 
 public class BookSaveListener implements Listener {
     private final BetterBooks plugin;
     HashMap<String, OpenBook> readers = new HashMap<>();
 
-    private HashMap<String, List<ItemStack>> invTransactions = new HashMap<>();
+
 
     public BookSaveListener(BetterBooks plugin) {
         this.plugin = plugin;
@@ -263,47 +267,14 @@ public class BookSaveListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClose(InventoryCloseEvent event) {
         if (plugin.isHawkeyeEnabled()) {
-            String player = event.getPlayer().getName();
-            InventoryHolder holder = event.getInventory().getHolder();
-
-            if (holder instanceof BookShelf && invTransactions.containsKey(player)) {
-                List<ItemStack> oldInv = invTransactions.get(player);
-                BookShelf bookShelf = (BookShelf) holder;
-
-                if (oldInv != null) {
-                    invTransactions.remove(player);
-
-                    List<ItemStack>[] dif = InventoryUtil.getDifference(oldInv, InventoryUtil.compressInventory(holder.getInventory().getContents()));
-
-                    if (dif[0].size() > 0 && DataType.CONTAINER_EXTRACT.isLogged()) {
-                        for (String str : InventoryUtil.serializeInventory(ContainerEntry.getSerializer(), dif[0])) {
-                            HawkEye.getDbmanager().getConsumer().addEntry(new ContainerExtract(player, DataType.CONTAINER_EXTRACT, bookShelf.getLocation(), str));
-                        }
-                    }
-
-                    if (dif[1].size() > 0 && DataType.CONTAINER_INSERT.isLogged()) {
-                        for (String str : InventoryUtil.serializeInventory(ContainerEntry.getSerializer(), dif[1])) {
-                            HawkEye.getDbmanager().getConsumer().addEntry(new ContainerInsert(player, DataType.CONTAINER_INSERT, bookShelf.getLocation(), str));
-                        }
-                    }
-
-                }
-            }
+        	HawkEyeTool.get().handleShelfClose(event);
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventoryOpen(InventoryOpenEvent event) {
         if (plugin.isHawkeyeEnabled()) {
-            String player = event.getPlayer().getName();
-            InventoryHolder holder = event.getInventory().getHolder();
-
-            if (holder instanceof BookShelf) {
-                BookShelf bookShelf = (BookShelf) holder;
-
-                invTransactions.put(player, InventoryUtil.compressInventory(holder.getInventory().getContents()));
-                HawkEye.getDbmanager().getConsumer().addEntry(new DataEntry(player, DataType.OPEN_CONTAINER, bookShelf.getLocation(), "Bookshelf"));
-            }
+        	HawkEyeTool.get().handleShelfOpen(event);
         }
     }
 

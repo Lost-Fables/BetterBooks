@@ -55,6 +55,13 @@
 			<groupId>uk.co.oliwali</groupId>
 			<artifactId>HawkEye</artifactId>
 			<version>1.7.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.dthielke.herochat</groupId>
+					<artifactId>Herochat</artifactId>
+				</exclusion>
+			</exclusions>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 

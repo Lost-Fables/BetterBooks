@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import uk.co.oliwali.HawkEye.util.HawkEyeAPI;
 
 public final class BetterBooks extends JavaPlugin {
     boolean shelvesBurnClean;
