@@ -28,6 +28,8 @@ public final class BetterBooks extends JavaPlugin {
 
         if (getServer().getPluginManager().getPlugin("HawkEye") != null) {
             hawkeyeEnabled = true;
+            pm.registerEvents(new HawkEyeListener(), this);
+
         }
 
     }

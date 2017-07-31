@@ -90,7 +90,7 @@ public class BookShelf implements InventoryHolder {
                 BookShelf s = getBookshelf(b);
                 if (s != null) {
                     int slot = res.getInt(5);
-                    ItemStack book = SQLSerializer.desxerialize(res);
+                    ItemStack book = SQLSerializer.deserialize(res);
 
                     s.getInventory().setItem(slot, book);
                 }

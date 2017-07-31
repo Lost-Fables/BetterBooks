@@ -261,21 +261,4 @@ public class BookSaveListener implements Listener {
         Block b = event.getBlock().getRelative(event.getDirection(), 2);
         if (b.getType() == Material.BOOKSHELF) event.setCancelled(true);
     }
-
-
-    // Log when books enter or leave bookshelves
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onInventoryClose(InventoryCloseEvent event) {
-        if (plugin.isHawkeyeEnabled()) {
-        	HawkEyeTool.get().handleShelfClose(event);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onInventoryOpen(InventoryOpenEvent event) {
-        if (plugin.isHawkeyeEnabled()) {
-        	HawkEyeTool.get().handleShelfOpen(event);
-        }
-    }
-
 }
