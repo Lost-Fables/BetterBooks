@@ -3,6 +3,7 @@ package io.github.archemedes.betterbooks;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -80,7 +81,6 @@ public class BookSaveListener implements Listener {
             } else {
                 BookShelf shelf = BookShelf.getBookshelf(b);
                 Inventory inv = shelf.getInventory();
-                System.out.println(inv.getViewers());
                 if (shelf.getInventory().getViewers().size() == 0) {
                     changetracker.put(shelf.getLocation(), inv.getContents());
                 }
@@ -91,23 +91,18 @@ public class BookSaveListener implements Listener {
 
     private HashMap<Location, ItemStack[]> changetracker = Maps.newHashMap();
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    public void onDrag(InventoryDragEvent event) {
-        Inventory inv = event.getInventory();
-        if ((inv.getHolder() instanceof BookShelf)) { event.setCancelled(true); }
-    }
-
     @EventHandler(ignoreCancelled = true)
     public void onInteract(InventoryClickEvent event) {
         Inventory inv = event.getInventory();
+        
         if (!(inv.getHolder() instanceof BookShelf)) {
             return;
         }
+        
         BookShelf shelf = (BookShelf) inv.getHolder();
         final Player p = (Player) event.getWhoClicked();
         InventoryAction a = event.getAction();
 
-        Material type = null;
         if (shelf.isViewer(p)) {
             event.setCancelled(true);
 
@@ -132,37 +127,8 @@ public class BookSaveListener implements Listener {
                     openbook.setTask(Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> BookSaveListener.this.readers.remove(p.getName())
                             , 6000L));
                 }
-
             }
-        } else {
-            if (a == InventoryAction.NOTHING) return;
-            if (a == InventoryAction.COLLECT_TO_CURSOR) {
-                event.setCancelled(true);
-                return;
-            }
-            int slot;
-            if (event.getRawSlot() <= 8) {
-                slot = event.getRawSlot();
-            } else {
-                if (a == InventoryAction.MOVE_TO_OTHER_INVENTORY) { slot = inv.firstEmpty(); } else { return; }
-            }
-            if ((a == InventoryAction.MOVE_TO_OTHER_INVENTORY) && (inv.getItem(slot) == null)) {
-                type = event.getCurrentItem().getType();
-            } else if (a == InventoryAction.HOTBAR_SWAP) {
-                ItemStack hotbar = p.getInventory().getItem(event.getHotbarButton());
-                type = hotbar == null ?
-                       event.getCurrentItem().getType() :
-                       p.getInventory().getItem(event.getHotbarButton()).getType();
-            } else if (event.getCursor().getType() != Material.AIR) {
-                type = event.getCursor().getType();
-            }
-            if ((type != null) &&
-                    (type != Material.BOOK) && (type != Material.PAPER) && (type != Material.WRITTEN_BOOK) &&
-                    (type != Material.BOOK_AND_QUILL) && (type != Material.EMPTY_MAP)) {
-                event.setCancelled(true);
-                return;
-            }
-        }
+        } 
     }
 
 
@@ -174,9 +140,18 @@ public class BookSaveListener implements Listener {
             BookShelf shelf = (BookShelf) inv.getHolder();
             Player p = (Player) event.getPlayer();
             shelf.removeViewer(p);
-
-            System.out.println(inv.getViewers());
+            
             if (inv.getViewers().size() <= 1) {
+            	//Last person to close the bookcase cleans it up
+            	//This involves collecting everything that isn't a book.
+            	ItemStack[] ises = shelf.cleanupForbiddenItems();
+            	if(ises.length > 0) {
+            		p.sendMessage(ChatColor.LIGHT_PURPLE + "You take out all the items not belonging in a bookcase");
+            		Map<Integer, ItemStack> remainder = p.getInventory().addItem(ises);
+            		remainder.values().stream()
+            		.forEach(is -> p.getWorld().dropItemNaturally(p.getLocation(), is));
+            	}
+            	
                 if (!Arrays.equals(changetracker.get(shelf.getLocation()), shelf.getInventory().getContents())) {
                     shelf.setChanged();
                 }

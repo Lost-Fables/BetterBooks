@@ -106,6 +106,25 @@ public class BookShelf implements InventoryHolder {
             e.printStackTrace();
         }
     }
+    
+    public ItemStack[] cleanupForbiddenItems() {
+    	ItemStack[] cs = inv.getContents();
+    	List<ItemStack> forbidden = new ArrayList<>();
+    	for(int i = 0; i < cs.length; i++) {
+    		ItemStack is = cs[i];
+    		if(is == null) continue;
+    		Material m = is.getType();
+    		if(m != Material.WRITTEN_BOOK && m != Material.BOOK_AND_QUILL && m!= Material.BOOK
+    				&& m != Material.PAPER && m != Material.MAP && m != Material.ENCHANTED_BOOK) {
+    			cs[i] = null;
+    			forbidden.add(is);
+    		}
+    	}
+    	
+    	if(!forbidden.isEmpty()) inv.setContents(cs);
+    	ItemStack[] result = new ItemStack[forbidden.size()];
+    	return forbidden.toArray(result);
+    }
 
     public void addViewer(Player p) {
         this.viewers.add(p.getName());
