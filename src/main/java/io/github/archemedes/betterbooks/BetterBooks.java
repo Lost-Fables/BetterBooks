@@ -13,10 +13,16 @@ public final class BetterBooks extends JavaPlugin {
 
     @Override
     public void onEnable() {
+    	BookSaveListener bsl = new BookSaveListener(this);
+    	
         getCommand("signbook").setExecutor(new BookSigner(this));
         getCommand("fixbook").setExecutor(new BookFixer(this));
+        getCommand("browsebook").setExecutor(new BookBrowser(this, bsl.readers));
         PluginManager pm = Bukkit.getPluginManager();
-        pm.registerEvents(new BookSaveListener(this), this);
+        
+        
+        
+        pm.registerEvents(bsl, this);
         pm.registerEvents(new BookCraftListener(this), this);
         BookShelf.init(this);
 

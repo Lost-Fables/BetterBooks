@@ -25,7 +25,6 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
@@ -57,53 +56,35 @@ public class BookSaveListener implements Listener {
         }
 
         Action a = event.getAction();
-        if (((a == Action.RIGHT_CLICK_BLOCK) || (a == Action.LEFT_CLICK_BLOCK)) &&
-                (b.getType() == Material.BOOKSHELF) &&
-                (event.getBlockFace() != BlockFace.UP) && (event.getBlockFace() != BlockFace.DOWN)) {
-            if ((p.isSneaking()) && (this.readers.containsKey(p.getName()))) {
-                OpenBook book = this.readers.get(p.getName());
-                Location l = book.getLocation();
-                if ((l.getWorld() == p.getWorld()) && (l.distance(p.getLocation()) < 5.0D)) {
-                    String[] words = book.readNext(a == Action.LEFT_CLICK_BLOCK).split(" ");
-                    int i1 = book.getPage() + 1;
-                    int i2 = book.getPages();
-                    p.sendMessage(ChatColor.GREEN + "--------------------------------------------------");
-                    p.sendMessage(ChatColor.GREEN + "Book: " + ChatColor.WHITE + book.getTitle() + " " + ChatColor.GREEN + "By: " + ChatColor.WHITE + book.getAuthor() + ChatColor.GREEN + " (page " + i1 + "/" + i2 + ")");
-                    p.sendMessage(ChatColor.GREEN.toString());
-
-                    StringBuilder bl = new StringBuilder(64);
-                    for (String word : words) {
-                        bl.append(word).append(" ");
-                        if (bl.length() >= 50) {
-                            p.sendMessage(ChatColor.stripColor(bl.toString()));
-                            bl = new StringBuilder(64);
-                        }
-                    }
-                    p.sendMessage(bl.toString());
-                    p.sendMessage(ChatColor.GREEN + "--------------------------------------------------");
-                }
-            } else if (a == Action.RIGHT_CLICK_BLOCK) {
-                if (p.getGameMode() == GameMode.CREATIVE) {
-                    p.sendMessage(ChatColor.RED + "You may not open bookshelves in creative mode.");
-                    event.setCancelled(true);
-                    return;
-                } else if (event.isCancelled()) {
-                    if (BookShelf.hasBookShelf(b)) {
-                        p.sendMessage(ChatColor.RED + "You may only read through the contents of this bookshelf.");
-                        BookShelf shelf = BookShelf.getBookshelf(b);
-                        shelf.addViewer(p);
-                        p.openInventory(shelf.getInventory());
-                    } else {
-                        p.sendMessage(ChatColor.RED + "You may not access this bookshelf at present.");
-                    }
-                } else {
+        if (a == Action.RIGHT_CLICK_BLOCK && b.getType() == Material.BOOKSHELF &&
+                (event.getBlockFace() != BlockFace.UP) && (event.getBlockFace() != BlockFace.DOWN) ) {
+        	
+        	if(this.readers.containsKey(p.getName())) {
+        		p.sendMessage(ChatColor.GRAY+ "You put down the book you were reading");
+        		this.readers.remove(p.getName()).cancelTask();
+        	}
+        	
+            if (p.getGameMode() == GameMode.CREATIVE) {
+                p.sendMessage(ChatColor.RED + "You may not open bookshelves in creative mode.");
+                event.setCancelled(true);
+                return;
+            } else if (event.isCancelled()) {
+                if (BookShelf.hasBookShelf(b)) {
+                    p.sendMessage(ChatColor.RED + "You may only read through the contents of this bookshelf.");
                     BookShelf shelf = BookShelf.getBookshelf(b);
-                    Inventory inv = shelf.getInventory();
-                    if (shelf.getInventory().getViewers().size() <= 1) {
-                        changetracker.put(shelf.getLocation(), inv.getContents());
-                    }
-                    p.openInventory(inv);
+                    shelf.addViewer(p);
+                    p.openInventory(shelf.getInventory());
+                } else {
+                    p.sendMessage(ChatColor.RED + "You may not access this bookshelf at present.");
                 }
+            } else {
+                BookShelf shelf = BookShelf.getBookshelf(b);
+                Inventory inv = shelf.getInventory();
+                System.out.println(inv.getViewers());
+                if (shelf.getInventory().getViewers().size() == 0) {
+                    changetracker.put(shelf.getLocation(), inv.getContents());
+                }
+                p.openInventory(inv);
             }
         }
     }
@@ -127,46 +108,32 @@ public class BookSaveListener implements Listener {
         InventoryAction a = event.getAction();
 
         Material type = null;
-
         if (shelf.isViewer(p)) {
             event.setCancelled(true);
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, p::closeInventory);
-            if ((a.toString().contains("PICKUP")) && (
-                    (event.getCurrentItem().getType() == Material.WRITTEN_BOOK) || (event.getCurrentItem().getType() == Material.BOOK_AND_QUILL))) {
+            if ((a == InventoryAction.PICKUP_ALL || a == InventoryAction.PICKUP_HALF || a == InventoryAction.PICKUP_SOME || a == InventoryAction.PICKUP_ONE) 
+            		&& ((event.getCurrentItem().getType() == Material.WRITTEN_BOOK) || (event.getCurrentItem().getType() == Material.BOOK_AND_QUILL))) {
                 BookMeta meta = (BookMeta) event.getCurrentItem().getItemMeta();
                 String title = meta.getTitle() == null ? "Unknown" : ChatColor.stripColor(meta.getTitle());
                 String auth = meta.getAuthor() == null ? "Unknown" : ChatColor.stripColor(meta.getAuthor());
                 List<String> pages = meta.getPages();
                 boolean noPages = (pages.isEmpty()) || ((pages.size() == 1) && (pages.get(0).isEmpty()));
-                int i2 = noPages ? 0 : pages.size();
-                p.sendMessage(ChatColor.GREEN + "--------------------------------------------------");
-                p.sendMessage(ChatColor.GREEN + "You have selected: " + ChatColor.WHITE + title);
-                p.sendMessage(ChatColor.GREEN + "By: " + ChatColor.WHITE + auth);
-                p.sendMessage(ChatColor.GREEN + "Pages: " + ChatColor.WHITE + i2);
-                p.sendMessage(ChatColor.GREEN + "--------------------------------------------------");
-
+                
                 if (noPages) {
                     p.sendMessage(ChatColor.GRAY + "Sadly, there are no pages for you to read.");
                 } else {
                     OpenBook openbook = new OpenBook(title, auth, pages, p.getLocation());
+                    openbook.getPagePrintout(p, 0);
+                    
                     OpenBook oldBook = this.readers.put(p.getName(), openbook);
-                    p.sendMessage(ChatColor.GOLD + "Right click the containing bookcase, while sneaking, to read through the pages.");
-
-                    if (oldBook != null) {
-                        int task = oldBook.getTask();
-                        if (task > 0) {
-                            Bukkit.getScheduler().cancelTask(task);
-                        }
-
-                    }
+                    if (oldBook != null) oldBook.cancelTask();
 
                     openbook.setTask(Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> BookSaveListener.this.readers.remove(p.getName())
                             , 6000L));
                 }
 
             }
-
         } else {
             if (a == InventoryAction.NOTHING) return;
             if (a == InventoryAction.COLLECT_TO_CURSOR) {
@@ -208,6 +175,7 @@ public class BookSaveListener implements Listener {
             Player p = (Player) event.getPlayer();
             shelf.removeViewer(p);
 
+            System.out.println(inv.getViewers());
             if (inv.getViewers().size() <= 1) {
                 if (!Arrays.equals(changetracker.get(shelf.getLocation()), shelf.getInventory().getContents())) {
                     shelf.setChanged();

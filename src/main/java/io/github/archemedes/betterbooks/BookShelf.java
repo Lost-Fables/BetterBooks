@@ -120,7 +120,7 @@ public class BookShelf implements InventoryHolder {
     }
 
     @Override
-    public Inventory getInventory() {
+	public Inventory getInventory() {
         return this.inv;
     }
 
@@ -148,7 +148,7 @@ public class BookShelf implements InventoryHolder {
 
         if (empty) shelves.remove(this.key);
     }
-
+    
     public void remove(boolean drops) {
         boolean empty = true;
 
