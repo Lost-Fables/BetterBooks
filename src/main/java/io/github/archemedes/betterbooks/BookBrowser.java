@@ -11,11 +11,10 @@ import org.bukkit.entity.Player;
 import net.md_5.bungee.api.ChatColor;
 
 public class BookBrowser implements CommandExecutor {
-	private BetterBooks plugin;
 	private Map<String, OpenBook> readers;
 	
-	public BookBrowser(BetterBooks plugin, Map<String, OpenBook> readers) {
-		this.plugin = plugin;
+	public BookBrowser(Map<String, OpenBook> readers) {
+		this.readers = readers;
 	}
 
 	@Override

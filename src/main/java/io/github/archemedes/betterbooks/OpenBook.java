@@ -40,7 +40,7 @@ class OpenBook {
     	
     	p.sendMessage(divider + tagline + divider);
     	
-    	p.sendMessage(this.pages.get(page));
+    	p.sendMessage(ChatColor.stripColor(this.pages.get(page)));
         /*String[] words = this.pages.get(page).split(" ");
 
         StringBuilder bl = new StringBuilder(64);
@@ -60,28 +60,31 @@ class OpenBook {
     	
     	//Page navigator
     	TextComponent sub;
-    	tc.addExtra("[");
+    	
     	if(page > 0) {
     		sub = new TextComponent("Previous");
+    		tc.addExtra("[");
     		sub.setItalic(true);
     		sub.setColor(net.md_5.bungee.api.ChatColor.GRAY);
 			sub.setClickEvent( new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/browsebook " + (page) ));
-    		tc.addExtra(sub);
-    		tc.addExtra("]");
+    		
+			tc.addExtra(sub);
+			tc.addExtra("]");
     	}
     	
-    	sub = new TextComponent("  Page " + (page+1) + "/" + getPages() + "  ");
+    	sub = new TextComponent("   Page " + (page+1) + "/" + getPages() + "   ");
     	sub.setColor(net.md_5.bungee.api.ChatColor.GREEN);
     	tc.addExtra(sub);
     	
     	if(page+1 < getPages()) {
-	    	tc.addExtra("[");
-	    	sub = new TextComponent("Next");
+    		sub = new TextComponent("Next");
+    		tc.addExtra("[");
 	    	sub.setItalic(true);
 			sub.setClickEvent( new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/browsebook " + (page+2) ));
 	    	sub.setColor(net.md_5.bungee.api.ChatColor.GRAY);
 	    	tc.addExtra(sub);
 	    	tc.addExtra("]");
+	    	
     	}
     	
     	p.spigot().sendMessage(tc);
