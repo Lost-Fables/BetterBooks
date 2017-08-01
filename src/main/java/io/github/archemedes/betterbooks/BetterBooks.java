@@ -33,9 +33,11 @@ public final class BetterBooks extends JavaPlugin {
         this.signOnCompletion = config.getBoolean("sign.on.completion");
 
         if (getServer().getPluginManager().getPlugin("HawkEye") != null) {
-            hawkeyeEnabled = true;
-            pm.registerEvents(new HawkEyeListener(), this);
-
+            try {
+                Class.forName("uk.co.oliwali.HawkEye.entry.containerentries.ContainerExtract");
+                hawkeyeEnabled = true;
+                pm.registerEvents(new HawkEyeListener(), this);
+            } catch (ClassNotFoundException ignored) {}
         }
 
     }
