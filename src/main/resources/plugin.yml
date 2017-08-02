@@ -12,5 +12,7 @@ commands:
   fixbook:
     description: Fixes missing texture books.
     usage: /fixbook
-
+  browsebook:
+    description: Browse to the page of a book you are reading
+    usage: /browsebook [page number]
   

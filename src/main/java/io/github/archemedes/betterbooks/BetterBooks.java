@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import uk.co.oliwali.HawkEye.util.HawkEyeAPI;
 
 public final class BetterBooks extends JavaPlugin {
     boolean shelvesBurnClean;
@@ -14,10 +13,16 @@ public final class BetterBooks extends JavaPlugin {
 
     @Override
     public void onEnable() {
+    	BookSaveListener bsl = new BookSaveListener(this);
+    	
         getCommand("signbook").setExecutor(new BookSigner(this));
         getCommand("fixbook").setExecutor(new BookFixer(this));
+        getCommand("browsebook").setExecutor(new BookBrowser(bsl.readers));
         PluginManager pm = Bukkit.getPluginManager();
-        pm.registerEvents(new BookSaveListener(this), this);
+        
+        
+        
+        pm.registerEvents(bsl, this);
         pm.registerEvents(new BookCraftListener(this), this);
         BookShelf.init(this);
 
@@ -28,7 +33,11 @@ public final class BetterBooks extends JavaPlugin {
         this.signOnCompletion = config.getBoolean("sign.on.completion");
 
         if (getServer().getPluginManager().getPlugin("HawkEye") != null) {
-            hawkeyeEnabled = true;
+            try {
+                Class.forName("uk.co.oliwali.HawkEye.entry.containerentries.ContainerExtract");
+                hawkeyeEnabled = true;
+                pm.registerEvents(new HawkEyeListener(), this);
+            } catch (ClassNotFoundException ignored) {}
         }
 
     }
