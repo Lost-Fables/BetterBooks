@@ -13,7 +13,9 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-public class SQLSerializer {
+public class SQLSerializer { 
+	//TODO: Just use AttributeItem::serialize to store individual items. This will use spigot-backed
+	//serialization and allows us to store other items than books at minimal effort.
     public static PreparedStatement serialize(PreparedStatement into, ItemStack item)
             throws SQLException {
         Material m = item.getType();
@@ -39,7 +41,7 @@ public class SQLSerializer {
             BookMeta meta = (BookMeta) item.getItemMeta();
             tit = meta.getTitle();
             auth = meta.getAuthor();
-            gen = meta.getGeneration().toString();
+            gen = meta.hasGeneration()? meta.getGeneration().toString() : null;
             List<String> pages = meta.getPages();
             StringBuilder buffer = new StringBuilder();
             for (String s : pages) {
@@ -86,7 +88,7 @@ public class SQLSerializer {
         String lore = res.getString(10);
         String author = res.getString(11);
         String page = res.getString(12);
-        String gen = (res.getString(13) != null) ? res.getString(13) : "ORIGINAL";
+        String gen = (res.getString(13) != null) ? res.getString(13) : null;
 
         if ((m == Material.WRITTEN_BOOK) || (m == Material.BOOK_AND_QUILL)) {
             BookMeta meta = (BookMeta) book.getItemMeta();

@@ -115,7 +115,7 @@ public class BookShelf implements InventoryHolder {
     		if(is == null) continue;
     		Material m = is.getType();
     		if(m != Material.WRITTEN_BOOK && m != Material.BOOK_AND_QUILL && m!= Material.BOOK
-    				&& m != Material.PAPER && m != Material.MAP && m != Material.ENCHANTED_BOOK) {
+    				&& m != Material.PAPER && m != Material.EMPTY_MAP) {
     			cs[i] = null;
     			forbidden.add(is);
     		}

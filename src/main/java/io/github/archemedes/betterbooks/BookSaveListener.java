@@ -78,9 +78,12 @@ public class BookSaveListener implements Listener {
                     p.sendMessage(ChatColor.RED + "You may not access this bookshelf at present.");
                 }
             } else {
+            	event.setCancelled(true);
                 BookShelf shelf = BookShelf.getBookshelf(b);
                 Inventory inv = shelf.getInventory();
+                System.out.println("Opening bookshelf?");
                 if (shelf.getInventory().getViewers().size() == 0) {
+                	System.out.println("Adding trackers");
                     changetracker.put(shelf.getLocation(), inv.getContents());
                 }
                 p.openInventory(inv);
@@ -136,6 +139,7 @@ public class BookSaveListener implements Listener {
         Inventory inv = event.getInventory();
 
         if ((inv.getHolder() instanceof BookShelf)) {
+        	System.out.println("Closing bookshelf" + inv.getViewers().size());
             BookShelf shelf = (BookShelf) inv.getHolder();
             Player p = (Player) event.getPlayer();
             shelf.removeViewer(p);
