@@ -102,9 +102,10 @@ public class SQLSerializer {
                 List<String> lorelist = Arrays.asList(lore.split("\\$"));
                 meta.setLore(lorelist);
             }
+            if(gen != null) {
+            	meta.setGeneration(Generation.valueOf(gen));
+            }
             
-            meta.setGeneration(Generation.valueOf(gen));
-
             book.setItemMeta(meta);
         } else {
             ItemMeta meta = book.getItemMeta();
