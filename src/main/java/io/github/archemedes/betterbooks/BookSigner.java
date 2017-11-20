@@ -1,6 +1,6 @@
 package io.github.archemedes.betterbooks;
 
-import io.github.archemedes.customitem.Customizer;
+import io.github.archemedes.customitem.CustomTag;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -47,20 +47,21 @@ public class BookSigner
 
         ItemStack item = player.getEquipment().getItemInMainHand();
         if (item.getType() == Material.WRITTEN_BOOK) {
-            if (Customizer.isCustom(item))
-                if (!Customizer.getCustomTag(item).equalsIgnoreCase("archebook")) {
-                    BookMeta metadata = (BookMeta) item.getItemMeta();
-                    if ((metadata.getAuthor().equals(player.getName())) || (player.hasPermission("betterbooks.signothers"))) {
-                        metadata.setAuthor(ChatColor.AQUA + author);
-                        item.setItemMeta(metadata);
-                        item.setDurability((short) 0);
-                        player.sendMessage(ChatColor.AQUA + "Book Signed!");
-                        item = Customizer.giveCustomTag(item, "archebook");
-                        return true;
-                    }
-                    player.sendMessage(ChatColor.RED + "A sudden onset of morality compels you not to sign another person's book");
+            if (!CustomTag.hasCustomTag(item, "archebook")) {
+                CustomTag tag = CustomTag.getFrom(item);
+                BookMeta metadata = (BookMeta) item.getItemMeta();
+                if ((metadata.getAuthor().equals(player.getName())) || (player.hasPermission("betterbooks.signothers"))) {
+                    metadata.setAuthor(ChatColor.AQUA + author);
+                    item.setItemMeta(metadata);
+                    item.setDurability((short) 0);
+                    player.sendMessage(ChatColor.AQUA + "Book Signed!");
+                    tag.put("archebook", player.getUniqueId().toString());
+                    item = tag.apply(item);
                     return true;
                 }
+                player.sendMessage(ChatColor.RED + "A sudden onset of morality compels you not to sign another person's book");
+                return true;
+            }
             player.sendMessage(ChatColor.RED + "Book has already been signed!");
             return true;
         }

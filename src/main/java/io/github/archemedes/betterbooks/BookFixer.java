@@ -1,6 +1,6 @@
 package io.github.archemedes.betterbooks;
 
-import io.github.archemedes.customitem.Customizer;
+import io.github.archemedes.customitem.CustomTag;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -28,7 +28,9 @@ public class BookFixer implements CommandExecutor {
                     if (is.getDurability() != 0) {
                         is.setDurability((short) 0);
                         count += is.getAmount();
-                        is = Customizer.giveCustomTag(is, "archebook");
+                        CustomTag t = CustomTag.getFrom(is);
+                        t.put("archebook", p.getUniqueId().toString());
+                        is = t.apply(is);
                         p.getInventory().setItem(i, is);
                     }
                 }

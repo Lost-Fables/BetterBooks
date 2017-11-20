@@ -1,6 +1,6 @@
 package io.github.archemedes.betterbooks;
 
-import io.github.archemedes.customitem.Customizer;
+import io.github.archemedes.customitem.CustomTag;
 import net.lordofthecraft.arche.ArcheCore;
 import net.lordofthecraft.arche.interfaces.PersonaHandler;
 import org.bukkit.ChatColor;
@@ -30,7 +30,9 @@ public class BookCraftListener
                 meta.setAuthor(ChatColor.AQUA + this.handler.getPersona(p).getName());
                 e.setNewBookMeta(meta);
                 ItemStack is = p.getInventory().getItem(e.getSlot());
-                is = Customizer.giveCustomTag(is, "archebook");
+                CustomTag t = CustomTag.getFrom(is);
+                t.put("archebook", p.getUniqueId().toString());
+                is = t.apply(is);
                 e.getPlayer().getInventory().setItem(e.getSlot(), is);
             }
         }

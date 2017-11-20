@@ -47,8 +47,6 @@ public final class BetterBooks extends JavaPlugin {
         for (BookShelf shelf : BookShelf.getAllShelves().values()) {
             shelf.close();
         }
-
-        ClearShelfTask.close();
     }
 
     public boolean isHawkeyeEnabled() {

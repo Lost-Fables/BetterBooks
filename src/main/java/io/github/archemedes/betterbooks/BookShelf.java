@@ -2,15 +2,20 @@ package io.github.archemedes.betterbooks;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.github.archemedes.betterbooks.io.BookRow;
+import io.github.archemedes.betterbooks.io.DelBookRow;
+import io.github.archemedes.betterbooks.io.UpdateBookRow;
 import net.lordofthecraft.arche.ArcheCore;
 import net.lordofthecraft.arche.SQL.SQLHandler;
 import net.lordofthecraft.arche.interfaces.IArcheCore;
-import net.lordofthecraft.arche.save.SaveHandler;
+import net.lordofthecraft.arche.interfaces.IConsumer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -19,19 +24,19 @@ import org.bukkit.inventory.ItemStack;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BookShelf implements InventoryHolder {
     public static final String BOOKSHELF_NAME = "Bookshelf";
     private static final Map<Location, BookShelf> shelves = Maps.newHashMap();
-    private static SaveHandler buffer;
+    //private static SaveHandler buffer;
+    private static IConsumer consumer;
     private final List<String> viewers = Lists.newArrayList();
     private final Inventory inv;
     private final Location key;
     private boolean changed = false;
+    private boolean hasRow = false;
 
     private BookShelf(Location where) {
         this.key = where;
@@ -61,14 +66,15 @@ public class BookShelf implements InventoryHolder {
     }
 
     static void init(BetterBooks plugin) {
-        buffer = SaveHandler.getInstance();
+        //buffer = SaveHandler.getInstance();
         IArcheCore control = ArcheCore.getControls();
+        consumer = control.getConsumer();
         SQLHandler handler = control.getSQLHandler();
 
-        handler.execute("CREATE TABLE IF NOT EXISTS books (world TEXT, x INT, y INT, z INT, slot INT, mat TEXT, count INT, damage INT, title TEXT, author TEXT, lore TEXT, pages TEXT, gen TEXT);");
+        handler.execute("CREATE TABLE IF NOT EXISTS books (world CHAR(36), x INT, y INT, z INT, inv TEXT, PRIMARY KEY (world,x,y,z)) " + (ArcheCore.usingSQLite() ? ";" : "ENGINE=InnoDB DEFAULT CHARSET=utf8;"));
         ResultSet res = null;
         try {
-            res = handler.query("SELECT * FROM books;");
+            res = handler.query("SELECT world,x,y,z,inv FROM books;");
             populateBookshelves(res);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -79,20 +85,18 @@ public class BookShelf implements InventoryHolder {
 
     static void populateBookshelves(ResultSet res) throws SQLException {
         while (res.next()) {
-            String world = res.getString(1);
-            World w = Bukkit.getWorld(world);
+            String world = res.getString("world");
+            World w = Bukkit.getWorld(UUID.fromString(world));
             if (w != null) {
-                int x = res.getInt(2);
-                int y = res.getInt(3);
-                int z = res.getInt(4);
+                int x = res.getInt("x");
+                int y = res.getInt("y");
+                int z = res.getInt("z");
 
                 Block b = w.getBlockAt(x, y, z);
                 BookShelf s = getBookshelf(b);
                 if (s != null) {
-                    int slot = res.getInt(5);
-                    ItemStack book = SQLSerializer.deserialize(res);
-
-                    s.getInventory().setItem(slot, book);
+                    s.loadFromString(res.getString("inv"));
+                    s.hasRow = true;
                 }
             }
         }
@@ -154,18 +158,23 @@ public class BookShelf implements InventoryHolder {
     public void close() {
         boolean empty = isInventoryEmpty(this.inv);
 
-        if (this.changed) {
-            this.changed = false;
-
-            ItemStack[] contents = empty ? null : this.inv.getContents();
-            ClearShelfTask task = new ClearShelfTask(contents, getLocation());
-            buffer.put(task);
-        } else if (getLocation().getBlock().getType() != Material.BOOKSHELF) {
-            ClearShelfTask task = new ClearShelfTask(null, getLocation());
-            buffer.put(task);
+        if (empty) {
+            shelves.remove(this.key);
+            consumer.queueRow(new DelBookRow(key));
+            return;
         }
 
-        if (empty) shelves.remove(this.key);
+        if (this.changed) {
+            this.changed = false;
+            if (!hasRow) {
+                consumer.queueRow(new BookRow(this));
+                hasRow = true;
+            } else {
+                consumer.queueRow(new UpdateBookRow(key.clone(), saveToString()));
+            }
+        } else if (getLocation().getBlock().getType() != Material.BOOKSHELF) {
+            consumer.queueRow(new DelBookRow(key.clone()));
+        }
     }
     
     public void remove(boolean drops) {
@@ -186,8 +195,7 @@ public class BookShelf implements InventoryHolder {
         }
 
         if (!empty) {
-            ClearShelfTask task = new ClearShelfTask(null, getLocation());
-            buffer.put(task);
+            consumer.queueRow(new DelBookRow(key.clone()));
         }
     }
 
@@ -198,5 +206,39 @@ public class BookShelf implements InventoryHolder {
             }
         }
         return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void loadFromString(String inv) {
+        YamlConfiguration config = new YamlConfiguration();
+        ItemStack[] contents;
+        try {
+            if (inv != null) {
+                config.loadFromString(inv);
+                List<ItemStack> result = config.getList("c").stream()
+                        .map(ent -> (Map<String, Object>) ent)
+                        .map(ent -> ent == null ? null : ItemStack.deserialize(ent))
+                        .collect(Collectors.toList());
+                contents = result.toArray(new ItemStack[result.size()]);
+            } else {
+                contents = new ItemStack[9];
+            }
+        } catch (InvalidConfigurationException e) {
+            contents = new ItemStack[9];
+            e.printStackTrace();
+        }
+        this.inv.setContents(contents);
+    }
+
+    public String saveToString() {
+        YamlConfiguration config = new YamlConfiguration();
+        ItemStack[] contents = inv.getContents();
+        List<Map<String, Object>> contentslist = Lists.newArrayList();
+        for (ItemStack i : contents) {
+            if (i == null) contentslist.add(null);
+            else contentslist.add(i.serialize());
+        }
+        config.set("c", contentslist);
+        return config.saveToString();
     }
 }
