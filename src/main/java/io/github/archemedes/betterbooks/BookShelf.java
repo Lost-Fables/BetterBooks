@@ -7,6 +7,7 @@ import io.github.archemedes.betterbooks.io.DelBookRow;
 import io.github.archemedes.betterbooks.io.UpdateBookRow;
 import net.lordofthecraft.arche.ArcheCore;
 import net.lordofthecraft.arche.SQL.SQLHandler;
+import net.lordofthecraft.arche.SQL.SQLUtils;
 import net.lordofthecraft.arche.interfaces.IArcheCore;
 import net.lordofthecraft.arche.interfaces.IConsumer;
 import org.bukkit.Bukkit;
@@ -22,8 +23,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -70,16 +73,22 @@ public class BookShelf implements InventoryHolder {
         IArcheCore control = ArcheCore.getControls();
         consumer = control.getConsumer();
         SQLHandler handler = control.getSQLHandler();
-
-        handler.execute("CREATE TABLE IF NOT EXISTS books (world CHAR(36), x INT, y INT, z INT, inv TEXT, PRIMARY KEY (world,x,y,z)) " + (ArcheCore.usingSQLite() ? ";" : "ENGINE=InnoDB DEFAULT CHARSET=utf8;"));
+        Connection conn = handler.getConnection();
         ResultSet res = null;
         try {
-            res = handler.query("SELECT world,x,y,z,inv FROM books;");
+            Statement stat = conn.createStatement();
+
+            stat.execute("CREATE TABLE IF NOT EXISTS books (world CHAR(36), x INT, y INT, z INT, inv TEXT, PRIMARY KEY (world,x,y,z)) " + (ArcheCore.usingSQLite() ? ";" : "ENGINE=InnoDB DEFAULT CHARSET=utf8;"));
+
+            res = stat.executeQuery("SELECT world,x,y,z,inv FROM books");
             populateBookshelves(res);
+            res.close();
+            stat.close();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             close(res);
+            SQLUtils.close(conn);
         }
     }
 
