@@ -36,7 +36,7 @@ public class BookSaveListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onClick(PlayerInteractEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND) {
+        if (event.getHand() != EquipmentSlot.HAND || event.getPlayer().isSneaking()) {
             return;
         }
         Block b = event.getClickedBlock();
