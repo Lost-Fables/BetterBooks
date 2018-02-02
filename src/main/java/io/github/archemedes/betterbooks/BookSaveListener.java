@@ -1,26 +1,14 @@
 package io.github.archemedes.betterbooks;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import com.google.common.collect.Maps;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockPistonExtendEvent;
-import org.bukkit.event.block.BlockPistonRetractEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -31,7 +19,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-import com.google.common.collect.Maps;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BookSaveListener implements Listener {
     private final BetterBooks plugin;
@@ -45,7 +36,7 @@ public class BookSaveListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onClick(PlayerInteractEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND) {
+        if (event.getHand() != EquipmentSlot.HAND || event.getPlayer().isSneaking()) {
             return;
         }
         Block b = event.getClickedBlock();
@@ -80,6 +71,9 @@ public class BookSaveListener implements Listener {
             } else {
             	event.setCancelled(true);
                 BookShelf shelf = BookShelf.getBookshelf(b);
+                if (shelf == null) {
+                    return;
+                }
                 Inventory inv = shelf.getInventory();
                 if (shelf.getInventory().getViewers().size() == 0) {
                     changetracker.put(shelf.getLocation(), inv.getContents());
@@ -98,6 +92,14 @@ public class BookSaveListener implements Listener {
         if (!(inv.getHolder() instanceof BookShelf)) {
             return;
         }
+
+        /*List<InventoryUtil.MovedItem> mitems = InventoryUtil.getResultOfEvent(event);
+
+        for (InventoryUtil.MovedItem item : mitems) {
+            if (item.getItem().getType() != Material.WRITTEN_BOOK && item.getItem().getType() != Material.BOOK_AND_QUILL) {
+                event.setCancelled(true);
+            }
+        }*/
         
         BookShelf shelf = (BookShelf) inv.getHolder();
         final Player p = (Player) event.getWhoClicked();
