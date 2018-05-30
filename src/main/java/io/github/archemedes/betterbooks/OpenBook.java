@@ -87,6 +87,7 @@ class OpenBook {
     	}
     	
     	p.spigot().sendMessage(tc);
+    	
     }
 
     int getPages() {

@@ -2,6 +2,7 @@ package io.github.archemedes.betterbooks;
 
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,9 +13,11 @@ import net.md_5.bungee.api.ChatColor;
 
 public class BookBrowser implements CommandExecutor {
 	private Map<String, OpenBook> readers;
+	private BetterBooks plugin;
 	
-	public BookBrowser(Map<String, OpenBook> readers) {
+	public BookBrowser(Map<String, OpenBook> readers, BetterBooks plugin) {
 		this.readers = readers;
+		this.plugin = plugin;
 	}
 
 	@Override
@@ -45,6 +48,12 @@ public class BookBrowser implements CommandExecutor {
 			}
 			
 			book.getPagePrintout(p, --page);
+			
+			book.cancelTask();
+
+	        book.setTask(Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> plugin.bsl.removeReader(p.getName(), true)
+	                , 6000L));
+			
 		} else {
 			sender.sendMessage("You are not currently reading any books...");
 		}

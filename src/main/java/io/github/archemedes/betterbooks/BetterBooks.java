@@ -10,14 +10,16 @@ public final class BetterBooks extends JavaPlugin {
     boolean signOnCompletion;
 
     private boolean hawkeyeEnabled = false;
+    
+    BookSaveListener bsl;
 
     @Override
     public void onEnable() {
-    	BookSaveListener bsl = new BookSaveListener(this);
+    	bsl = new BookSaveListener(this);
     	
         getCommand("signbook").setExecutor(new BookSigner(this));
         getCommand("fixbook").setExecutor(new BookFixer(this));
-        getCommand("browsebook").setExecutor(new BookBrowser(bsl.readers));
+        getCommand("browsebook").setExecutor(new BookBrowser(bsl.readers, this));
         PluginManager pm = Bukkit.getPluginManager();
         
         

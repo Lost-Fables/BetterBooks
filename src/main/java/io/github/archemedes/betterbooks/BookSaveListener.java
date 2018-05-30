@@ -51,8 +51,8 @@ public class BookSaveListener implements Listener {
                 (event.getBlockFace() != BlockFace.UP) && (event.getBlockFace() != BlockFace.DOWN) ) {
         	
         	if(this.readers.containsKey(p.getName())) {
-        		p.sendMessage(ChatColor.GRAY+ "You put down the book you were reading");
-        		this.readers.remove(p.getName()).cancelTask();
+        		p.sendMessage(ChatColor.GRAY+ "You put down the book you were reading to pick up another.");
+        		this.removeReader(p.getName(), false);
         	}
         	
             if (p.getGameMode() == GameMode.CREATIVE) {
@@ -126,7 +126,7 @@ public class BookSaveListener implements Listener {
                     OpenBook oldBook = this.readers.put(p.getName(), openbook);
                     if (oldBook != null) oldBook.cancelTask();
 
-                    openbook.setTask(Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> BookSaveListener.this.readers.remove(p.getName())
+                    openbook.setTask(Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> BookSaveListener.this.removeReader(p.getName(), true)
                             , 6000L));
                 }
             }
@@ -206,4 +206,14 @@ public class BookSaveListener implements Listener {
         Block b = event.getBlock().getRelative(event.getDirection(), 2);
         if (b.getType() == Material.BOOKSHELF) event.setCancelled(true);
     }
+
+	public void removeReader(String name, boolean timeout) {
+		if (timeout)
+			this.readers.remove(name);
+		else
+			this.readers.remove(name).cancelTask();
+		Player p = plugin.getServer().getPlayer(name);
+		if (p != null) p.sendMessage(ChatColor.GRAY + "You put down the book you were reading.");
+		
+	}
 }
