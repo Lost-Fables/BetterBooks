@@ -52,7 +52,7 @@ public class BookBrowser implements CommandExecutor {
 			book.cancelTask();
 
 	        book.setTask(Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> plugin.bsl.removeReader(p.getName(), true)
-	                , 6000L));
+	                , 60*20*BetterBooks.READER_TIMEOUT_MINUTES));
 			
 		} else {
 			sender.sendMessage("You are not currently reading any books...");

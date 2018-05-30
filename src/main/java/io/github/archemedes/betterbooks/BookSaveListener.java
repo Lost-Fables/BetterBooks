@@ -127,7 +127,7 @@ public class BookSaveListener implements Listener {
                     if (oldBook != null) oldBook.cancelTask();
 
                     openbook.setTask(Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> BookSaveListener.this.removeReader(p.getName(), true)
-                            , 6000L));
+                            , 60*20*BetterBooks.READER_TIMEOUT_MINUTES));
                 }
             }
         } 

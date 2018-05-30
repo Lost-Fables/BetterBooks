@@ -12,6 +12,8 @@ public final class BetterBooks extends JavaPlugin {
     private boolean hawkeyeEnabled = false;
     
     BookSaveListener bsl;
+    
+    public static final int READER_TIMEOUT_MINUTES = 5;
 
     @Override
     public void onEnable() {
