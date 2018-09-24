@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.archemedes</groupId>
   <artifactId>BetterBooks</artifactId>
-  <version>1.12.2</version>
+  <version>1.0.0</version>
   <name>BetterBooks</name>
   <description>They're just better.</description>
 
