@@ -40,7 +40,7 @@ public final class BetterBooks extends JavaPlugin {
             try {
                 Class.forName("uk.co.oliwali.HawkEye.entry.containerentries.ContainerExtract");
                 hawkeyeEnabled = true;
-                pm.registerEvents(new HawkEyeListener(), this);
+                pm.registerEvents(new BlockLoggingListener(), this);
             } catch (ClassNotFoundException ignored) {}
         }
 
