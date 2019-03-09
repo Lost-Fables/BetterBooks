@@ -2,34 +2,25 @@ package io.github.archemedes.betterbooks;
 
 import java.util.HashMap;
 import java.util.List;
-
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-import uk.co.oliwali.HawkEye.DataType;
-import uk.co.oliwali.HawkEye.HawkEye;
-import uk.co.oliwali.HawkEye.entry.DataEntry;
-import uk.co.oliwali.HawkEye.entry.containerentries.ContainerEntry;
-import uk.co.oliwali.HawkEye.entry.containerentries.ContainerExtract;
-import uk.co.oliwali.HawkEye.entry.containerentries.ContainerInsert;
-import uk.co.oliwali.HawkEye.util.InventoryUtil;
+class BlockLoggingTool {
 
-class HawkEyeTool {
-
-	private static HawkEyeTool singleton = null;
+	private static BlockLoggingTool singleton = null;
 	
     private HashMap<String, List<ItemStack>> invTransactions = new HashMap<>();
     
-	public static HawkEyeTool get() {
-		if(singleton == null) singleton = new HawkEyeTool();
+	public static BlockLoggingTool get() {
+		if(singleton == null) singleton = new BlockLoggingTool();
 		return singleton;
 	}
 	
-	private HawkEyeTool() {}
+	private BlockLoggingTool() {}
 	
 	public void handleShelfOpen(InventoryOpenEvent event ) {
+		/*
         String player = event.getPlayer().getName();
         InventoryHolder holder = event.getInventory().getHolder();
 
@@ -39,10 +30,11 @@ class HawkEyeTool {
             invTransactions.put(player, InventoryUtil.compressInventory(holder.getInventory().getContents()));
             HawkEye.getDbmanager().getConsumer().addEntry(new DataEntry(player, DataType.OPEN_CONTAINER, bookShelf.getLocation(), "Bookshelf"));
         }
+        */
 	}
 	
 	public void handleShelfClose(InventoryCloseEvent event) {
-        String player = event.getPlayer().getName();
+        /*String player = event.getPlayer().getName();
         InventoryHolder holder = event.getInventory().getHolder();
 
         if (holder instanceof BookShelf && invTransactions.containsKey(player)) {
@@ -67,7 +59,7 @@ class HawkEyeTool {
                 }
 
             }
-        }
+        }*/
 	}
 	
 }

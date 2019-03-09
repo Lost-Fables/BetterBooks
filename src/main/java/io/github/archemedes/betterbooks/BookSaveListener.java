@@ -92,14 +92,6 @@ public class BookSaveListener implements Listener {
         if (!(inv.getHolder() instanceof BookShelf)) {
             return;
         }
-
-        /*List<InventoryUtil.MovedItem> mitems = InventoryUtil.getResultOfEvent(event);
-
-        for (InventoryUtil.MovedItem item : mitems) {
-            if (item.getItem().getType() != Material.WRITTEN_BOOK && item.getItem().getType() != Material.BOOK_AND_QUILL) {
-                event.setCancelled(true);
-            }
-        }*/
         
         BookShelf shelf = (BookShelf) inv.getHolder();
         final Player p = (Player) event.getWhoClicked();
@@ -110,7 +102,7 @@ public class BookSaveListener implements Listener {
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, p::closeInventory);
             if ((a == InventoryAction.PICKUP_ALL || a == InventoryAction.PICKUP_HALF || a == InventoryAction.PICKUP_SOME || a == InventoryAction.PICKUP_ONE) 
-            		&& ((event.getCurrentItem().getType() == Material.WRITTEN_BOOK) || (event.getCurrentItem().getType() == Material.BOOK_AND_QUILL))) {
+            		&& ((event.getCurrentItem().getType() == Material.WRITTEN_BOOK) || (event.getCurrentItem().getType() == Material.WRITABLE_BOOK))) {
                 BookMeta meta = (BookMeta) event.getCurrentItem().getItemMeta();
                 String title = meta.getTitle() == null ? "Unknown" : ChatColor.stripColor(meta.getTitle());
                 String auth = meta.getAuthor() == null ? "Unknown" : ChatColor.stripColor(meta.getAuthor());
