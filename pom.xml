@@ -42,7 +42,7 @@
     <dependency>
       <groupId>net.lordofthecraft</groupId>
       <artifactId>OmniscienceAPI</artifactId>
-      <version>1.0.4</version>
+      <version>1.0.5</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
