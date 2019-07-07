@@ -9,7 +9,7 @@ public final class BetterBooks extends JavaPlugin {
     boolean shelvesBurnClean;
     boolean signOnCompletion;
 
-    private boolean hawkeyeEnabled = false;
+    private boolean omniscienceEnabled = false;
     
     BookSaveListener bsl;
     
@@ -35,14 +35,7 @@ public final class BetterBooks extends JavaPlugin {
         this.shelvesBurnClean = config.getBoolean("shelves.burn.clean");
         this.signOnCompletion = config.getBoolean("sign.on.completion");
 
-        if (getServer().getPluginManager().getPlugin("HawkEye") != null) {
-            try {
-                Class.forName("uk.co.oliwali.HawkEye.entry.containerentries.ContainerExtract");
-                hawkeyeEnabled = true;
-                pm.registerEvents(new BlockLoggingListener(), this);
-            } catch (ClassNotFoundException ignored) {}
-        }
-
+        pm.registerEvents(new BlockLoggingListener(), this);
     }
 
     @Override
@@ -50,9 +43,5 @@ public final class BetterBooks extends JavaPlugin {
         for (BookShelf shelf : BookShelf.getAllShelves().values()) {
             shelf.close();
         }
-    }
-
-    public boolean isHawkeyeEnabled() {
-        return hawkeyeEnabled;
     }
 }
