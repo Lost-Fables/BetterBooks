@@ -1,6 +1,6 @@
 package io.github.archemedes.betterbooks;
 
-import io.github.archemedes.customitem.CustomTag;
+import co.lotc.core.bukkit.util.ItemUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -10,8 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-public class BookSigner
-        implements CommandExecutor {
+public class BookSigner implements CommandExecutor {
     private BetterBooks plugin;
 
     public BookSigner(BetterBooks plugin) {
@@ -47,16 +46,13 @@ public class BookSigner
 
         ItemStack item = player.getEquipment().getItemInMainHand();
         if (item.getType() == Material.WRITTEN_BOOK) {
-            if (!CustomTag.hasCustomTag(item, "archebook")) {
-                CustomTag tag = CustomTag.getFrom(item);
+            if (!ItemUtil.hasCustomTag(item, "archebook")) {
                 BookMeta metadata = (BookMeta) item.getItemMeta();
                 if ((metadata.getAuthor().equals(player.getName())) || (player.hasPermission("betterbooks.signothers"))) {
                     metadata.setAuthor(ChatColor.AQUA + author);
                     item.setItemMeta(metadata);
-                    item.setDurability((short) 0);
                     player.sendMessage(ChatColor.AQUA + "Book Signed!");
-                    tag.put("archebook", player.getUniqueId().toString());
-                    item = tag.apply(item);
+                    ItemUtil.setCustomTag(item,"archebook", player.getUniqueId().toString());
                     return true;
                 }
                 player.sendMessage(ChatColor.RED + "A sudden onset of morality compels you not to sign another person's book");

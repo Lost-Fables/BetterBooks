@@ -20,7 +20,6 @@ public final class BetterBooks extends JavaPlugin {
     	bsl = new BookSaveListener(this);
     	
         getCommand("signbook").setExecutor(new BookSigner(this));
-        getCommand("fixbook").setExecutor(new BookFixer(this));
         getCommand("browsebook").setExecutor(new BookBrowser(bsl.readers, this));
         PluginManager pm = Bukkit.getPluginManager();
         
