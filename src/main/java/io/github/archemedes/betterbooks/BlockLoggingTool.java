@@ -59,10 +59,10 @@ class BlockLoggingTool {
 
 					switch (transaction.getType()) {
 						case WITHDRAW:
-							OEntry.create().player(e.getWhoClicked()).withdrew(transaction, location, null).save();
+							OEntry.create().player(e.getWhoClicked()).withdrew(transaction, location, "bookshelf").save();
 							break;
 						case DEPOSIT:
-							OEntry.create().player(e.getWhoClicked()).deposited(transaction, location, null).save();
+							OEntry.create().player(e.getWhoClicked()).deposited(transaction, location, "bookshelf").save();
 							break;
 						case CLONE:
 							break;
