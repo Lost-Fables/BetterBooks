@@ -1,5 +1,6 @@
 package io.github.archemedes.betterbooks;
 
+import io.github.archemedes.betterbooks.sqlite.Database;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
@@ -12,8 +13,10 @@ public final class BetterBooks extends JavaPlugin {
     private boolean omniscienceEnabled = false;
     
     BookSaveListener bsl;
-    
+
+    public static Database db;
     public static final int READER_TIMEOUT_MINUTES = 5;
+    public static final boolean DEBUGGING = true;
 
     @Override
     public void onEnable() {
@@ -22,12 +25,11 @@ public final class BetterBooks extends JavaPlugin {
         getCommand("signbook").setExecutor(new BookSigner(this));
         getCommand("browsebook").setExecutor(new BookBrowser(bsl.readers, this));
         PluginManager pm = Bukkit.getPluginManager();
-        
-        
+
+        db = new Database(this);
         
         pm.registerEvents(bsl, this);
         pm.registerEvents(new BookCraftListener(this), this);
-        BookShelf.init(this);
 
         FileConfiguration config = getConfig();
         saveDefaultConfig();
