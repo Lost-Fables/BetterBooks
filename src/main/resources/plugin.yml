@@ -2,8 +2,8 @@ name: ${project.name}
 main: io.github.archemedes.betterbooks.BetterBooks
 version: ${project.version}
 description: ${project.description}
-depend: [ArcheCore]
-softdepend: [Omniscience]
+depend: [Tythan]
+softdepend: [Omniscience, RPPersonas]
 api-version: 1.13
 
 commands:
