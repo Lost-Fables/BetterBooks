@@ -20,13 +20,12 @@ public class Database {
 	public static Connection connection;
 
 	private String dbname;
-	protected String SQLiteTableName;
+	private static final String SQLiteTableName = "shelves_table";
 	private String SQLiteTokensTable;
 
 	public Database(BetterBooks instance){
 		plugin = instance;
-		this.SQLiteTableName = "shelves_table";
-		dbname = instance.getConfig().getString("SQLite.Filename", "heads");
+		dbname = instance.getConfig().getString("SQLite.Filename", "shelves");
 		SQLiteTokensTable = "CREATE TABLE IF NOT EXISTS " + SQLiteTableName + " (\n" +
 							"    world TEXT NOT NULL,\n" +
 							"    x INT NOT NULL,\n" +

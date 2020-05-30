@@ -27,6 +27,7 @@ public final class BetterBooks extends JavaPlugin {
         PluginManager pm = Bukkit.getPluginManager();
 
         db = new Database(this);
+        db.load();
         
         pm.registerEvents(bsl, this);
         pm.registerEvents(new BookCraftListener(this), this);
