@@ -160,7 +160,7 @@ public class Database {
 			try {
 				conn = getSQLConnection();
 				String stmt;
-				stmt = "DELETE FROM " + SQLiteTableName + " WHERE WORLD=" + loc.getWorld().getName() + " AND X=" + loc.getBlockX() + " AND Y=" + loc.getBlockY() + " AND Z=" + loc.getBlockZ() + ";";
+				stmt = "DELETE FROM " + SQLiteTableName + " WHERE WORLD='" + loc.getWorld().getName() + "' AND X='" + loc.getBlockX() + "' AND Y='" + loc.getBlockY() + "' AND Z='" + loc.getBlockZ() + "';";
 				ps = conn.prepareStatement(stmt);
 				ps.executeUpdate();
 			} catch (SQLException ex) {
