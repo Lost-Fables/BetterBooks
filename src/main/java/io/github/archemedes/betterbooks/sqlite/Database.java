@@ -27,12 +27,12 @@ public class Database {
 		plugin = instance;
 		dbname = instance.getConfig().getString("SQLite.Filename", "shelves");
 		SQLiteTokensTable = "CREATE TABLE IF NOT EXISTS " + SQLiteTableName + " (\n" +
-							"    world TEXT NOT NULL,\n" +
-							"    x INT NOT NULL,\n" +
-							"    y INT NOT NULL,\n" +
-							"    z INT NOT NULL,\n" +
-							"    inv TEXT NOT NULL,\n" +
-							"    PRIMARY KEY(world, x, y, z)\n" +
+							"    WORLD TEXT NOT NULL,\n" +
+							"    X INT NOT NULL,\n" +
+							"    Y INT NOT NULL,\n" +
+							"    Z INT NOT NULL,\n" +
+							"    INV TEXT NOT NULL,\n" +
+							"    PRIMARY KEY (WORLD,X,Y,Z)\n" +
 							");";
 	}
 
@@ -89,17 +89,17 @@ public class Database {
 			PreparedStatement ps = connection.prepareStatement(stmt);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
-				String world = rs.getString("world");
+				String world = rs.getString("WORLD");
 				World w = Bukkit.getWorld(UUID.fromString(world));
 				if (w != null) {
-					int x = rs.getInt("x");
-					int y = rs.getInt("y");
-					int z = rs.getInt("z");
+					int x = rs.getInt("X");
+					int y = rs.getInt("Y");
+					int z = rs.getInt("Z");
 
 					Block b = w.getBlockAt(x, y, z);
 					BookShelf s = BookShelf.getBookshelf(b);
 					if (s != null) {
-						s.loadFromString(rs.getString("inv"));
+						s.loadFromString(rs.getString("INV"));
 					}
 				}
 			}
@@ -124,7 +124,7 @@ public class Database {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		String stmt;
-		stmt = "INSERT OR REPLACE INTO " + SQLiteTableName + " (world,x,y,z,inv) VALUES(?,?,?,?,?)";
+		stmt = "INSERT OR REPLACE INTO " + SQLiteTableName + " (WORLD,X,Y,Z,INV) VALUES(?,?,?,?,?)";
 
 		try {
 			conn = getSQLConnection();
@@ -160,7 +160,7 @@ public class Database {
 			try {
 				conn = getSQLConnection();
 				String stmt;
-				stmt = "DELETE FROM " + SQLiteTableName + " WHERE world=" + loc.getWorld().getName() + " AND x=" + loc.getBlockX() + " AND y=" + loc.getBlockY() + " AND z=" + loc.getBlockZ() + ";";
+				stmt = "DELETE FROM " + SQLiteTableName + " WHERE WORLD=" + loc.getWorld().getName() + " AND X=" + loc.getBlockX() + " AND Y=" + loc.getBlockY() + " AND Z=" + loc.getBlockZ() + ";";
 				ps = conn.prepareStatement(stmt);
 				ps.executeUpdate();
 			} catch (SQLException ex) {
