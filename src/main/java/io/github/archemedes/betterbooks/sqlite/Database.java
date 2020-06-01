@@ -90,7 +90,18 @@ public class Database {
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 				String world = rs.getString("WORLD");
-				World w = Bukkit.getWorld(UUID.fromString(world));
+				UUID worldUID = null;
+				try {
+					worldUID = UUID.fromString(world);
+				} catch (Exception ignored) {}
+
+				World w;
+				if (worldUID != null) {
+					w = Bukkit.getWorld(worldUID);
+				} else {
+					w = Bukkit.getWorld(world);
+				}
+
 				if (w != null) {
 					int x = rs.getInt("X");
 					int y = rs.getInt("Y");
@@ -131,7 +142,7 @@ public class Database {
 			ps = conn.prepareStatement(stmt);
 
 			Location loc = shelf.getLocation().clone();
-			ps.setString(1, (loc.getWorld() != null) ? loc.getWorld().getName() : null);
+			ps.setString(1, (loc.getWorld() != null) ? loc.getWorld().getUID().toString() : null);
 
 			ps.setInt(2, loc.getBlockX());
 			ps.setInt(3, loc.getBlockY());
