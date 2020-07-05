@@ -42,12 +42,12 @@ public class BookSaveListener implements Listener {
         Block b = event.getClickedBlock();
         Player p = event.getPlayer();
 
-        if (p.getEquipment().getItemInMainHand().getType() == Material.BOOKSHELF || (p.isSneaking() && event.isBlockInHand())) {
+        if ((p.getEquipment() != null && p.getEquipment().getItemInMainHand().getType() == Material.BOOKSHELF) || (p.isSneaking() && event.isBlockInHand())) {
             return;
         }
 
         Action a = event.getAction();
-        if (a == Action.RIGHT_CLICK_BLOCK && b.getType() == Material.BOOKSHELF &&
+        if (a == Action.RIGHT_CLICK_BLOCK && b != null && b.getType() == Material.BOOKSHELF &&
                 (event.getBlockFace() != BlockFace.UP) && (event.getBlockFace() != BlockFace.DOWN) ) {
         	
         	if(this.readers.containsKey(p.getName())) {
@@ -55,10 +55,9 @@ public class BookSaveListener implements Listener {
         		this.removeReader(p.getName(), false);
         	}
         	
-            if (p.getGameMode() == GameMode.CREATIVE) {
+            if (p.getGameMode() == GameMode.CREATIVE && !p.hasPermission("betterbooks.creative")) {
                 p.sendMessage(ChatColor.RED + "You may not open bookshelves in creative mode.");
                 event.setCancelled(true);
-                return;
             } else if (event.isCancelled()) {
                 if (BookShelf.hasBookShelf(b)) {
                     p.sendMessage(ChatColor.RED + "You may only read through the contents of this bookshelf.");
