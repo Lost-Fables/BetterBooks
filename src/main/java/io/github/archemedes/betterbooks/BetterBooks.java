@@ -20,6 +20,7 @@ public final class BetterBooks extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
     	bsl = new BookSaveListener(this);
     	
         getCommand("signbook").setExecutor(new BookSigner(this));
@@ -33,7 +34,6 @@ public final class BetterBooks extends JavaPlugin {
         pm.registerEvents(new BookCraftListener(this), this);
 
         FileConfiguration config = getConfig();
-        saveDefaultConfig();
 
         this.shelvesBurnClean = config.getBoolean("shelves.burn.clean");
         this.signOnCompletion = config.getBoolean("sign.on.completion");
