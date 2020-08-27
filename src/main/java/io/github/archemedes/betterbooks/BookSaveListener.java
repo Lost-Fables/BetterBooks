@@ -1,6 +1,7 @@
 package io.github.archemedes.betterbooks;
 
 import com.google.common.collect.Maps;
+import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Permission;
 import com.griefcraft.model.Protection;
@@ -58,32 +59,15 @@ public class BookSaveListener implements Listener {
         		this.removeReader(p.getName(), false);
         	}
 
-        	boolean playerCanView = true;
-        	boolean lockedFromPlayer = false;
+        	boolean playerHasAccess = true;
+        	boolean playerHasEditAccess = true;
             if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
                 LWCPlugin lwcPlugin = (LWCPlugin) plugin.getServer().getPluginManager().getPlugin("LWC");
                 if (lwcPlugin != null) { // Sanity check
-                    Protection prot = lwcPlugin.getLWC().findProtection(b.getLocation());
-                    if (prot != null) {
-                        Protection.Type type = prot.getType();
-
-                        if (!(prot.isOwner(p) || prot.isRealOwner(p) || type.equals(Protection.Type.PUBLIC))) {
-                            lockedFromPlayer = true;
-                        } else if (type.equals(Protection.Type.PASSWORD)) {
-                            lockedFromPlayer = true;
-                            for (Permission perm : prot.getPermissions()) {
-                                if (perm.getAccess().equals(Permission.Access.PLAYER) && perm.getAccess().name().equals(p.getName())) {
-                                    lockedFromPlayer = false;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (!(!lockedFromPlayer                     ||
-                              type.equals(Protection.Type.DONATION) ||
-                              type.equals(Protection.Type.DISPLAY)  )) {
-                            playerCanView = false;
-                        }
+                    LWC lwcClass = lwcPlugin.getLWC();
+                    if (lwcClass.findProtection(b) != null) {
+                        playerHasAccess = lwcClass.canAccessProtection(p, b);
+                        playerHasEditAccess = lwcClass.canAdminProtection(p, b);
                     }
                 }
             }
@@ -91,8 +75,8 @@ public class BookSaveListener implements Listener {
             event.setCancelled(true);
             if (p.getGameMode() == GameMode.CREATIVE && !p.hasPermission("betterbooks.creative")) {
                 p.sendMessage(ChatColor.RED + "You may not open bookshelves in creative mode.");
-            } else if (playerCanView) {
-                if (lockedFromPlayer) {
+            } else if (playerHasAccess) {
+                if (!playerHasEditAccess) {
                     if (BookShelf.hasBookShelf(b)) {
                         p.sendMessage(ChatColor.RED + "You may only read through the contents of this bookshelf.");
                         BookShelf shelf = BookShelf.getBookshelf(b);
