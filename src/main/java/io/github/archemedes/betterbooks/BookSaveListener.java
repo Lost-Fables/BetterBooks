@@ -72,7 +72,8 @@ public class BookSaveListener implements Listener {
 
                         if (!(type.equals(Protection.Type.DONATION) ||
                               type.equals(Protection.Type.DISPLAY)  ||
-                              type.equals(Protection.Type.PUBLIC)   )) {
+                              type.equals(Protection.Type.PUBLIC)   ||
+                              !lockedFromPlayer                     )) {
                             playerCanView = false;
                         }
                     }
