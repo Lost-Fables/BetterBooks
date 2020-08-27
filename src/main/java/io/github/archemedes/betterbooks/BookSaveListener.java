@@ -57,8 +57,8 @@ public class BookSaveListener implements Listener {
         		this.removeReader(p.getName(), false);
         	}
 
-        	boolean viewable = true;
-        	boolean lockedToPlayer = false;
+        	boolean playerCanView = true;
+        	boolean lockedFromPlayer = false;
             if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
                 LWCPlugin lwcPlugin = (LWCPlugin) plugin.getServer().getPluginManager().getPlugin("LWC");
                 if (lwcPlugin != null) { // Sanity check
@@ -67,13 +67,13 @@ public class BookSaveListener implements Listener {
                         Protection.Type type = prot.getType();
 
                         if (!(prot.isOwner(p) || prot.isRealOwner(p) || type.equals(Protection.Type.PUBLIC))) {
-                            lockedToPlayer = true;
+                            lockedFromPlayer = true;
                         }
 
                         if (!(type.equals(Protection.Type.DONATION) ||
-                              type.equals(Protection.Type.DISPLAY) ||
-                              type.equals(Protection.Type.PUBLIC)  )) {
-                            viewable = false;
+                              type.equals(Protection.Type.DISPLAY)  ||
+                              type.equals(Protection.Type.PUBLIC)   )) {
+                            playerCanView = false;
                         }
                     }
                 }
@@ -82,29 +82,31 @@ public class BookSaveListener implements Listener {
             event.setCancelled(true);
             if (p.getGameMode() == GameMode.CREATIVE && !p.hasPermission("betterbooks.creative")) {
                 p.sendMessage(ChatColor.RED + "You may not open bookshelves in creative mode.");
-            } else if (viewable && lockedToPlayer) {
-                if (BookShelf.hasBookShelf(b)) {
-                    p.sendMessage(ChatColor.RED + "You may only read through the contents of this bookshelf.");
-                    BookShelf shelf = BookShelf.getBookshelf(b);
-                    if (shelf != null) {
-                        shelf.addViewer(p);
-                        p.openInventory(shelf.getInventory());
+            } else if (playerCanView) {
+                if (lockedFromPlayer) {
+                    if (BookShelf.hasBookShelf(b)) {
+                        p.sendMessage(ChatColor.RED + "You may only read through the contents of this bookshelf.");
+                        BookShelf shelf = BookShelf.getBookshelf(b);
+                        if (shelf != null) {
+                            shelf.addViewer(p);
+                            p.openInventory(shelf.getInventory());
+                        } else {
+                            throw new NullPointerException("Tried to open a shelf on a block where it doesn't exist.");
+                        }
                     } else {
-                        throw new NullPointerException("Tried to open a shelf on a block where it doesn't exist.");
+                        p.sendMessage(ChatColor.RED + "You may not access this bookshelf at present.");
                     }
                 } else {
-                    p.sendMessage(ChatColor.RED + "You may not access this bookshelf at present.");
+                    BookShelf shelf = BookShelf.getBookshelf(b);
+                    if (shelf == null) {
+                        return;
+                    }
+                    Inventory inv = shelf.getInventory();
+                    if (shelf.getInventory().getViewers().size() == 0) {
+                        changetracker.put(shelf.getLocation(), inv.getContents());
+                    }
+                    p.openInventory(inv);
                 }
-            } else {
-                BookShelf shelf = BookShelf.getBookshelf(b);
-                if (shelf == null) {
-                    return;
-                }
-                Inventory inv = shelf.getInventory();
-                if (shelf.getInventory().getViewers().size() == 0) {
-                    changetracker.put(shelf.getLocation(), inv.getContents());
-                }
-                p.openInventory(inv);
             }
         }
     }
