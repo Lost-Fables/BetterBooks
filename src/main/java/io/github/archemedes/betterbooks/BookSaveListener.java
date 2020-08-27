@@ -1,6 +1,8 @@
 package io.github.archemedes.betterbooks;
 
 import com.google.common.collect.Maps;
+import com.griefcraft.lwc.LWCPlugin;
+import com.griefcraft.model.Protection;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -54,21 +56,35 @@ public class BookSaveListener implements Listener {
         		p.sendMessage(ChatColor.GRAY+ "You put down the book you were reading to pick up another.");
         		this.removeReader(p.getName(), false);
         	}
-        	
+
+        	boolean lockedToPlayer = false;
+            if (Bukkit.getPluginManager().isPluginEnabled("LWC")) {
+                LWCPlugin lwcPlugin = (LWCPlugin) plugin.getServer().getPluginManager().getPlugin("LWC");
+                if (lwcPlugin != null) { // Sanity check
+                    Protection prot = lwcPlugin.getLWC().findProtection(b.getLocation());
+                    if (prot != null && !(prot.isOwner(p) || prot.isRealOwner(p))) {
+                        lockedToPlayer = true;
+                    }
+                }
+            }
+
+            event.setCancelled(true);
             if (p.getGameMode() == GameMode.CREATIVE && !p.hasPermission("betterbooks.creative")) {
                 p.sendMessage(ChatColor.RED + "You may not open bookshelves in creative mode.");
-                event.setCancelled(true);
-            } else if (event.isCancelled()) {
+            } else if (lockedToPlayer) {
                 if (BookShelf.hasBookShelf(b)) {
                     p.sendMessage(ChatColor.RED + "You may only read through the contents of this bookshelf.");
                     BookShelf shelf = BookShelf.getBookshelf(b);
-                    shelf.addViewer(p);
-                    p.openInventory(shelf.getInventory());
+                    if (shelf != null) {
+                        shelf.addViewer(p);
+                        p.openInventory(shelf.getInventory());
+                    } else {
+                        throw new NullPointerException("Tried to open a shelf on a block where it doesn't exist.");
+                    }
                 } else {
                     p.sendMessage(ChatColor.RED + "You may not access this bookshelf at present.");
                 }
             } else {
-            	event.setCancelled(true);
                 BookShelf shelf = BookShelf.getBookshelf(b);
                 if (shelf == null) {
                     return;

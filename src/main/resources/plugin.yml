@@ -3,7 +3,7 @@ main: io.github.archemedes.betterbooks.BetterBooks
 version: ${project.version}
 description: ${project.description}
 depend: [Tythan]
-softdepend: [Omniscience, RPPersonas]
+softdepend: [Omniscience, RPPersonas, LWC]
 api-version: 1.13
 
 commands:

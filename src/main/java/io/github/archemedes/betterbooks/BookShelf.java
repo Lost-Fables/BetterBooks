@@ -137,7 +137,7 @@ public class BookShelf implements InventoryHolder {
 
     private boolean isInventoryEmpty(Inventory inv) {
         for (ItemStack item : inv.getContents()) {
-            if (item != null) {
+            if (item.getType().equals(Material.AIR)) {
                 return false;
             }
         }
