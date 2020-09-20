@@ -12,17 +12,24 @@ public class BlockLoggingListener implements Listener {
     // Log when books enter or leave bookshelves
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClose(InventoryCloseEvent event) {
-    	BlockLoggingTool.get().handleShelfClose(event);
+		if (event.getInventory().getHolder() instanceof BookShelf) {
+			BlockLoggingTool.get().handleShelfClose(event);
+		}
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventoryOpen(InventoryOpenEvent event) {
-    	BlockLoggingTool.get().handleShelfOpen(event);
+		if (event.getInventory().getHolder() instanceof BookShelf) {
+			BlockLoggingTool.get().handleShelfOpen(event);
+		}
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
-	    BlockLoggingTool.get().handleInventoryClick(event);
+    	if (event.getInventory().getHolder() instanceof BookShelf ||
+			(event.getClickedInventory() != null && event.getClickedInventory().getHolder() instanceof BookShelf)) {
+			BlockLoggingTool.get().handleInventoryClick(event);
+		}
     }
 
 }

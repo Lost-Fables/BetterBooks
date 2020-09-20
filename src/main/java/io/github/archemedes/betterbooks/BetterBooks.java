@@ -17,9 +17,11 @@ public final class BetterBooks extends JavaPlugin {
     public static Database db;
     public static final int READER_TIMEOUT_MINUTES = 5;
     public static final boolean DEBUGGING = true;
+    public static BetterBooks instance;
 
     @Override
     public void onEnable() {
+        instance = this;
         saveDefaultConfig();
     	bsl = new BookSaveListener(this);
     	
@@ -46,5 +48,9 @@ public final class BetterBooks extends JavaPlugin {
         for (BookShelf shelf : BookShelf.getAllShelves().values()) {
             shelf.close();
         }
+    }
+
+    public static BetterBooks get() {
+        return instance;
     }
 }

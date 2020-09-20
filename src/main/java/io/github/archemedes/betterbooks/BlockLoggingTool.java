@@ -48,27 +48,31 @@ class BlockLoggingTool {
 
 	public void handleInventoryClick(InventoryClickEvent e) {
 		// This refactor goes out to tofuus who took the bait hook line and sinker
-		List<InventoryTransaction<ItemStack>> transactions = InventoryUtil.identifyTransactions(e);
-		for (InventoryTransaction<ItemStack> transaction : transactions) {
-			if (transaction.getType() == InventoryTransaction.ActionType.CLONE) {
-				OEntry.create().player(e.getWhoClicked()).cloned(transaction.getDiff()).save();
-			} else {
-				InventoryHolder holder = transaction.getHolder();
-				if (holder instanceof BookShelf) {
-					Location location = ((BookShelf) holder).getLocation();
+		if (BetterBooks.get().getServer().getPluginManager().isPluginEnabled("Omniscience")) {
+			List<InventoryTransaction<ItemStack>> transactions = InventoryUtil.identifyTransactions(e);
+			for (InventoryTransaction<ItemStack> transaction : transactions) {
+				if (transaction.getType() == InventoryTransaction.ActionType.CLONE) {
+					OEntry.create().player(e.getWhoClicked()).cloned(transaction.getDiff()).save();
+				} else {
+					InventoryHolder holder = transaction.getHolder();
+					if (holder instanceof BookShelf) {
+						Location location = ((BookShelf) holder).getLocation();
 
-					switch (transaction.getType()) {
-						case WITHDRAW:
-							OEntry.create().player(e.getWhoClicked()).withdrew(transaction, location, "bookshelf").save();
-							break;
-						case DEPOSIT:
-							OEntry.create().player(e.getWhoClicked()).deposited(transaction, location, "bookshelf").save();
-							break;
-						case CLONE:
-							break;
+						switch (transaction.getType()) {
+							case WITHDRAW:
+								OEntry.create().player(e.getWhoClicked()).withdrew(transaction, location, "bookshelf").save();
+								break;
+							case DEPOSIT:
+								OEntry.create().player(e.getWhoClicked()).deposited(transaction, location, "bookshelf").save();
+								break;
+							case CLONE:
+								break;
+						}
 					}
 				}
 			}
+		} else {
+			BetterBooks.get().getLogger().warning("Unable to log a bookshelf transaction. Is Omni running?");
 		}
 	}
 }
